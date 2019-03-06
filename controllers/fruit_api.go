@@ -7,17 +7,25 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
+	"github.com/pangpanglabs/echoswagger"
 )
 
 type FruitApiController struct {
 }
 
-func (d FruitApiController) Init(g *echo.Group) {
-	g.GET("", d.GetAll)
-	g.GET("/:id", d.GetOne)
-	g.PUT("/:id", d.Update)
-	g.POST("", d.Create)
-	g.DELETE("/:id", d.Delete)
+func (d FruitApiController) Init(g echoswagger.ApiGroup) {
+	g.SetSecurity("Authorization")
+	g.GET("", d.GetAll).
+		AddParamQueryNested(SearchInput{})
+	g.GET("/:id", d.GetOne).
+		AddParamPath("", "id", "id")
+	g.PUT("/:id", d.Update).
+		AddParamPath("", "id", "id").
+		AddParamBody(models.Fruit{}, "fruit", "only can modify name,color,price", true)
+	g.POST("", d.Create).
+		AddParamBody(models.Fruit{}, "fruit", "new fruit", true)
+	g.DELETE("/:id", d.Delete).
+		AddParamPath("", "id", "id")
 }
 
 /*

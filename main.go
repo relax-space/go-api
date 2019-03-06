@@ -16,6 +16,7 @@ import (
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/pangpanglabs/echoswagger"
 	configutil "github.com/pangpanglabs/goutils/config"
 	"github.com/pangpanglabs/goutils/echomiddleware"
 
@@ -37,7 +38,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(c)
+	fmt.Println("Config===", c)
 	db, err := initDB("mysql", *fruitConnEnv)
 	if err != nil {
 		panic(err)
@@ -49,13 +50,23 @@ func main() {
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(http.StatusOK, "pong")
 	})
-	e.GET("/swagger", func(c echo.Context) error {
-		return c.File("./swagger.yml")
+
+	//for subdomain  just like https://staging.p2shop.com.cn/fruit/docs
+	middlePath := ""
+	if *appEnv != "" {
+		middlePath = "fruit"
+	}
+	r := echoswagger.New(e, middlePath, "docs", &echoswagger.Info{
+		Title:       "Sample Fruit API",
+		Description: "This is docs for fruit service",
+		Version:     "1.0.0",
 	})
-	e.Static("/swagger-yml", "./swagger-yml")
-	e.Static("/docs", "./swagger-ui")
-	controllers.FruitApiController{}.Init(e.Group("/fruits"))
-	controllers.FruitApiController{}.Init(e.Group("/v1/fruits"))
+	r.AddSecurityAPIKey("Authorization", "JWT token", echoswagger.SecurityInHeader)
+	r.SetUI(echoswagger.UISetting{
+		HideTop: true,
+	})
+	controllers.FruitApiController{}.Init(r.Group("fruits", "/fruits"))
+	controllers.FruitApiController{}.Init(r.Group("v1/fruits", "/v1/fruits"))
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(*jwtEnv),
 		Skipper: func(c echo.Context) bool {
@@ -63,7 +74,6 @@ func main() {
 				"/ping",
 				"/fruits",
 				"/sign",
-				"/swagger",
 				"/docs",
 			}
 
@@ -119,7 +129,7 @@ func initDB(driver, connection string) (*xorm.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.Sync(new(models.Fruit))
+	db.Sync2(new(models.Fruit))
 	return db, nil
 }
 
