@@ -13,8 +13,6 @@ FROM pangpanglabs/alpine-ssl
 WORKDIR /go/bin/
 # copy config files to image
 COPY --from=builder /go/src/go-api/*.yml ./
-COPY --from=builder /swagger-ui/ ./swagger-ui/
-COPY --from=builder /go/src/go-api/index.html ./swagger-ui/
 # copy execute file to image
 COPY --from=builder /go/bin/go-api ./
 EXPOSE 8080
