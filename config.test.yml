@@ -1,0 +1,3 @@
+debug: true
+service: go-api
+httpport: 8080
