@@ -17,7 +17,6 @@ type Fruit struct {
 	StoreCode string `json:"storeCode"`
 	CreatedAt string `json:"createdAt" xorm:"created"`
 	UpdatedAt string `json:"updatedAt" xorm:"updated"`
-	DeletedAt string `json:"deletedAt" xorm:"deleted"`
 }
 
 type Store struct {
@@ -88,7 +87,7 @@ func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit i
 	return
 }
 func (d *Fruit) Update(ctx context.Context, id int64) (affectedRow int64, err error) {
-	affectedRow, err = factory.DB(ctx).Cols("name,color,price").Where("id=?", id).Update(d)
+	affectedRow, err = factory.DB(ctx).Where("id=?", id).Update(d)
 	return
 }
 
