@@ -1,37 +1,61 @@
 package models_test
 
 import (
-	"fmt"
 	"go-api/models"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestFruitCreate(t *testing.T) {
-	f := &models.Fruit{
-		Code: "123",
-	}
-	affectedRow, err := f.Create(ctx)
-	fmt.Println(affectedRow, err, f)
-}
+func TestFruit(t *testing.T) {
 
-func TestFruitUpdate(t *testing.T) {
-	f := &models.Fruit{
-		Code: "222",
-	}
-	affectedRow, err := f.Update(ctx, 1)
-	fmt.Println(affectedRow, err)
-}
+	var ID int64 = 2
+	Convey("Test Fruit", t, func() {
 
-func TestFruitDelete(t *testing.T) {
-	affectedRow, err := models.Fruit{}.Delete(ctx, 2)
-	fmt.Println(affectedRow, err)
-}
+		Convey("Attempting to retrieve the fruit should return fruit", func() {
+			has, v, err := models.Fruit{}.GetById(ctx, ID)
+			So(err, ShouldBeNil)
+			So(has, ShouldBeTrue)
+			So(v.Id, ShouldEqual, 2)
+		})
 
-func TestFruitGetAll(t *testing.T) {
-	total, items, err := models.Fruit{}.GetAll(ctx, nil, nil, 0, 2, nil)
-	fmt.Println(total, items, err)
-}
-func TestFruitGetById(t *testing.T) {
-	has, v, err := models.Fruit{}.GetById(ctx, 1)
-	fmt.Println(has, v, err)
+		Convey("Given a fruit in the database", func() {
+			code := "apple"
+			f := &models.Fruit{
+				Code: code,
+			}
+			affectedRow, err := f.Create(ctx)
+			So(err, ShouldBeNil)
+			So(affectedRow, ShouldEqual, int64(1))
+			ID = f.Id
+			has, v, err := models.Fruit{}.GetById(ctx, ID)
+			So(err, ShouldBeNil)
+			So(has, ShouldBeTrue)
+			So(v.Code, ShouldEqual, code)
+
+		})
+		Convey("Update fruit price in the database", func() {
+			var price int64 = 10
+			f := &models.Fruit{
+				Price: price,
+			}
+			affectedRow, err := f.Update(ctx, ID)
+			So(err, ShouldBeNil)
+			So(affectedRow, ShouldEqual, int64(1))
+			has, v, err := models.Fruit{}.GetById(ctx, ID)
+			So(err, ShouldBeNil)
+			So(has, ShouldBeTrue)
+			So(v.Price, ShouldEqual, price)
+		})
+		Convey("Delete a fruit in the database", func() {
+			affectedRow, err := models.Fruit{}.Delete(ctx, ID)
+			So(err, ShouldBeNil)
+			So(affectedRow, ShouldEqual, int64(1))
+			has, v, err := models.Fruit{}.GetById(ctx, ID)
+			So(err, ShouldBeNil)
+			So(has, ShouldBeFalse)
+			So(v.Id, ShouldEqual, int64(0))
+		})
+
+	})
 }
