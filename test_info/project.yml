@@ -6,4 +6,6 @@ ports:
   - 8080
 databases:
   - mysql
+  - sqlserver
 streamNames:
+execPath: 
