@@ -5,7 +5,9 @@ isProjectKafka: false
 ports: 
   - 8080
 databases:
-  - mysql
-  - sqlserver
+  mysql:
+    - fruit
+  sqlserver:
+    - fruit
 streamNames:
 execPath: 
