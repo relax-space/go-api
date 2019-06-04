@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
+	"os"
 	"runtime"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -17,7 +18,7 @@ var db *xorm.Engine
 func init() {
 	runtime.GOMAXPROCS(1)
 	var err error
-	db, err = xorm.NewEngine("mysql", "root:1234@tcp(localhost:3306)/fruit?charset=utf8&parseTime=True&loc=UTC")
+	db, err = xorm.NewEngine(os.Getenv("SQL_DRIVER"), os.Getenv("Fruit_CONN"))
 	if err != nil {
 		panic(err)
 	}

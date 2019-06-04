@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
+	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
@@ -30,6 +31,7 @@ var (
 func main() {
 	appEnv := flag.String("app-env", os.Getenv("APP_ENV"), "app env")
 	fruitConnEnv := flag.String("FRUIT_CONN", os.Getenv("FRUIT_CONN"), "FRUIT_CONN")
+	sqlEnv := flag.String("SQL_DRIVER", os.Getenv("SQL_DRIVER"), "SQL_DRIVER")
 	jwtEnv := flag.String("JWT_SECRET", os.Getenv("JWT_SECRET"), "JWT_SECRET")
 	flag.Parse()
 
@@ -39,7 +41,7 @@ func main() {
 	}
 
 	fmt.Println("Config===", c)
-	db, err := initDB("mysql", *fruitConnEnv)
+	db, err := initDB(*sqlEnv, *fruitConnEnv)
 	if err != nil {
 		panic(err)
 	}

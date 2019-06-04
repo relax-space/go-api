@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	db, err := initDB("mysql", os.Getenv("Fruit_CONN"))
+	db, err := initDB(os.Getenv("SQL_DRIVER"), os.Getenv("Fruit_CONN"))
 	if err != nil {
 		panic(err)
 	}
