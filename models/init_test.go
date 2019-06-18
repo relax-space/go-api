@@ -3,10 +3,13 @@ package models_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 
+	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	"github.com/pangpanglabs/goutils/echomiddleware"
@@ -24,12 +27,41 @@ func init() {
 	}
 	db.ShowSQL(true)
 
-	resetDb(db, "../test_info/table.sql")
+	if getDbTypeName() == "mysql" {
+		if err = resetDb(db, "../test_info", "*"); err != nil {
+			fmt.Println(err)
+		}
+	}
 
 	ctx = context.WithValue(context.Background(), echomiddleware.ContextDBName, db.NewSession())
 }
 
-func resetDb(db *xorm.Engine, fileName string) error {
+func getDbTypeName() (name string) {
+	drive := os.Getenv("SQL_DRIVER")
+	switch drive {
+	case "mssql":
+		name = "sqlserver"
+	case "mysql":
+		name = "mysql"
+	}
+	return
+}
+
+func resetDb(db *xorm.Engine, folderName, databaseName string) (err error) {
+	fileName := fmt.Sprintf("%v/%v/%v.sql", folderName, getDbTypeName(), databaseName)
+	files, err := filepath.Glob(fileName)
+	if err != nil {
+		return
+	}
+	for _, f := range files {
+		if err = importView(db, f); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func importView(db *xorm.Engine, fileName string) error {
 	b, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return err

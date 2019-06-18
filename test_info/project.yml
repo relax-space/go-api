@@ -1,12 +1,12 @@
 envs:
   - APP_ENV=test
-  - SQL_DRIVER=mssql
-  - FRUIT_CONN=driver={sql server};server=test-sqlserver;user id=sa;password=Eland123;database=fruit;port=1433;
+  - SQL_DRIVER=mysql
+  - FRUIT_CONN=root:1234@tcp(test-mysql:3306)/fruit
 isProjectKafka: false
 ports: 
   - 8080
 databases:
-  sqlserver:
+  mysql:
     - fruit
 streamNames:
 execPath: 
