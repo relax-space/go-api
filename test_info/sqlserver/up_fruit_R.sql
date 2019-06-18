@@ -1,0 +1,20 @@
+USE [fruit]
+GO
+/****** Object: StoredProcedure [dbo].[up_fruit_R] Script Date: 2019/6/14 9:29:21 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[up_fruit_R]
+
+AS 
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+SET XACT_ABORT ON 
+SET NOCOUNT ON
+BEGIN
+
+SELECT *
+FROM fruit
+
+END
+GO
