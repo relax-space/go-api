@@ -7,6 +7,10 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_PADDING ON
 GO
+
+DROP TABLE IF EXISTS [dbo].[fruit]
+GO
+
 CREATE TABLE [dbo].[fruit](
 [id] [bigint] IDENTITY(1,1) NOT NULL,
 [code] [varchar](255) NULL,
@@ -28,9 +32,9 @@ GO
 SET IDENTITY_INSERT [dbo].[fruit] ON
 
 GO
-INSERT [dbo].[fruit] ([id], [code], [name], [color], [price], [store_code], [created_at], [updated_at]) VALUES (1, N'apple', N'apple', N'red', 11, NULL, N'2018-04-15 08:48:59', N'2018-10-22 06:00:09')
+INSERT [dbo].[fruit] ([id], [code], [name], [color], [price], [store_code], [created_at], [updated_at]) VALUES (1, N'apple', N'apple', N'red', 11, N'10001', N'2018-04-15 08:48:59', N'2018-10-22 06:00:09')
 GO
-INSERT [dbo].[fruit] ([id], [code], [name], [color], [price], [store_code], [created_at], [updated_at]) VALUES (2, N'banana', N'banana', N'yellow', 14, NULL, N'2018-04-15 08:48:59', N'2018-10-22 06:00:09')
+INSERT [dbo].[fruit] ([id], [code], [name], [color], [price], [store_code], [created_at], [updated_at]) VALUES (2, N'banana', N'banana', N'yellow', 14, N'10002', N'2018-04-15 08:48:59', N'2018-10-22 06:00:09')
 GO
 SET IDENTITY_INSERT [dbo].[fruit] OFF
 GO
