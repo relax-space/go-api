@@ -42,9 +42,7 @@ func Logger(ctx context.Context) *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{})
 }
 
-const (
-	ContextConfigName = "go-api-config"
-)
+var ContextConfigName = StringPoint("go-api-config")
 
 func Config(ctx context.Context, key string) interface{} {
 	return config(ctx, key)
@@ -69,4 +67,8 @@ func config(ctx context.Context, key string) interface{} {
 		}
 	}
 	panic("config context is not exist")
+}
+
+func StringPoint(flag string) *string {
+	return func(b string) *string { return &b }(flag)
 }
