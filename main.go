@@ -54,12 +54,7 @@ func main() {
 		return c.String(http.StatusOK, "pong")
 	})
 
-	//for subdomain  just like https://staging.p2shop.com.cn/fruit/docs
-	middlePath := ""
-	if *appEnv != "" {
-		middlePath = "fruit"
-	}
-	r := echoswagger.New(e, middlePath, "docs", &echoswagger.Info{
+	r := echoswagger.New(e, "docs", &echoswagger.Info{
 		Title:       "Sample Fruit API",
 		Description: "This is docs for fruit service",
 		Version:     "1.0.0",

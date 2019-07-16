@@ -3,6 +3,8 @@ WORKDIR /go/src/go-api
 COPY . .
 # disable cgo
 ENV CGO_ENABLED=0
+
+RUN git -C $GOPATH/src/github.com/pangpanglabs/echoswagger pull
 # build steps
 RUN echo ">>> 1: go version" && go version
 RUN echo ">>> 2: go get" && go get -v -d
