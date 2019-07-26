@@ -1,17 +1,26 @@
-logger:
-  kafka:
-        brokers:
-          - 10.26.205.20:9092
-          - 10.27.116.104:9092
-          - 10.27.121.103:9092
-        topic: sqllog
-behaviorLog:
+database:
+  driver: mysql
+  connection: fruit:Eland123@tcp(xxx.xxx.xxx.xx:3306)/fruit?charset=utf8&parseTime=True&loc=UTC
+  logger:
     kafka:
       brokers:
-        - 10.26.205.20:9092
-        - 10.27.116.104:9092
-        - 10.27.121.103:9092
-      topic: behaviorlog
-debug: true
-service: go-api
+        - 192.168.0.76:9092
+        - 192.168.0.145:9092
+        - 192.168.0.148:9092
+      topic: sqllog
+behaviorLog:
+  kafka:
+    brokers:
+      - 192.168.0.76:9092
+      - 192.168.0.145:9092
+      - 192.168.0.148:9092
+    topic: behaviorlog
+eventBroker:
+  kafka:
+    brokers:
+      - 192.168.0.76:9092
+      - 192.168.0.145:9092
+      - 192.168.0.148:9092
+    topic: fruit
+serviceName: go-api
 httpport: 8080

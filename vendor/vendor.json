@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "kIB1vxMJOIGAZ4CVOzggjVAlLd8=",
+			"path": "nomni/utils/api",
+			"revision": "74d630e246e5aa1820602a41a82448579ac5a5a7",
+			"revisionTime": "2019-07-30T14:56:25Z"
+		},
+		{
+			"checksumSHA1": "euXo6Hj6wpL9mYFVnKRk/wRgB4I=",
+			"path": "nomni/utils/eventconsume",
+			"revision": "74d630e246e5aa1820602a41a82448579ac5a5a7",
+			"revisionTime": "2019-07-30T14:56:25Z"
+		},
+		{
+			"checksumSHA1": "wkWqVrPNu6tmMlUU54aW6Zb+XrU=",
+			"path": "nomni/utils/validator",
+			"revision": "74d630e246e5aa1820602a41a82448579ac5a5a7",
+			"revisionTime": "2019-07-30T14:56:25Z"
+		}
+	],
+	"rootPath": "go-api"
+}
