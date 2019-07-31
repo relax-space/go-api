@@ -2,43 +2,36 @@
 
 You can quickly create an echo-based api project
 
-# supports
-- behavior log
-- swagger 2.0
-- jwt
-- context parameter
-- latest ci script
-
 ## Getting Started
 
-Get source
+### Get source
 ```
 $ git clone https://gitlab.p2shop.cn:8443/sample/go-api.git
 ```
 Rename the outermost folder to your project name  
 Rename api-go to your project name
 
-Run
-```
+### Run
+```bash
 $ cd $GOPATH/src/go-api
-$ go run main.go
+$ go run .
 ```
 
 Visit           http://127.0.0.1:8080/  
-Visit swagger   http://127.0.0.1:8080/docs/index.html
-
-## Sample
-You can see the latest sample here
-```
-https://gitlab.p2shop.cn:8443/sample/go-api.git
-```
+Visit swagger   http://127.0.0.1:8080/docs
 
 
 ## References
 
-- web framework: [echo framework](https://echo.labstack.com/)
-- orm tool: [xorm](http://xorm.io/)
-- logger : [logrus](https://github.com/sirupsen/logrus)
-- configuration tool: [viper](https://github.com/spf13/viper)
-- validator: [govalidator](github.com/asaskevich/govalidator)
-- utils: https://github.com/pangpanglabs/goutils
+- echosample: [echosample](https://github.com/pangpanglabs/echosample)
+- vendor: `nomni/utils/api`, `nomni/utils/validator`
+
+## Extensions
+
+- auth: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-auth) 
+- validator: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-validator) [github](https://github.com/relax-space/go-api-validator)
+- windows: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-windows.git) [github](https://github.com/relax-space/go-api-windows)
+- producer: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-producer) [github](https://github.com/relax-space/go-api-producer)
+- consumer: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-consumer) [github](https://github.com/relax-space/go-api-consumer)
+
+
