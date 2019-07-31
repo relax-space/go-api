@@ -34,22 +34,23 @@ type FruitStoreDto struct {
 	StoreName string `json:"storeName" xorm:"store_name"` // note: xorm:"store_name" ==== b.name as store_name
 }
 
-func (d *Fruit) Create(ctx context.Context) (affectedRow int64, err error) {
-	affectedRow, err = factory.DB(ctx).Insert(d)
-	return
+func (d *Fruit) Create(ctx context.Context) (int64, error) {
+	return factory.DB(ctx).Insert(d)
 }
 
-func (Fruit) GetById(ctx context.Context, id int64) (has bool, fruit Fruit, err error) {
-	has, err = factory.DB(ctx).Where("id=?", id).Get(&fruit)
-	return
+func (Fruit) GetById(ctx context.Context, id int64) (bool, Fruit, error) {
+	fruit := Fruit{}
+	has, err := factory.DB(ctx).Where("id=?", id).Get(&fruit)
+	return has, fruit, err
 }
 
-func (Fruit) GetByCode(ctx context.Context, code string) (has bool, fruit Fruit, err error) {
-	has, err = factory.DB(ctx).Where("code=?", code).Get(&fruit)
-	return
+func (Fruit) GetByCode(ctx context.Context, code string) (bool, Fruit, error) {
+	fruit := Fruit{}
+	has, err := factory.DB(ctx).Where("code=?", code).Get(&fruit)
+	return has, fruit, err
 }
 
-func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int) (totalCount int64, items []*Fruit, err error) {
+func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int) (int64, []Fruit, error) {
 	queryBuilder := func() xorm.Interface {
 		q := factory.DB(ctx)
 		if err := setSortOrder(q, sortby, order); err != nil {
@@ -57,28 +58,28 @@ func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit i
 		}
 		return q
 	}
-
-	totalCount, err = queryBuilder().Limit(limit, offset).FindAndCount(&items)
+	var items []Fruit
+	totalCount, err := queryBuilder().Limit(limit, offset).FindAndCount(&items)
 	if err != nil {
-		return
+		return totalCount, items, err
 	}
-	return
+	return totalCount, items, nil
 }
 
-func (d *Fruit) Update(ctx context.Context, id int64) (affectedRow int64, err error) {
-	affectedRow, err = factory.DB(ctx).Where("id=?", id).Update(d)
-	return
+func (d *Fruit) Update(ctx context.Context, id int64) (int64, error) {
+	return factory.DB(ctx).Where("id=?", id).Update(d)
+
 }
 
-func (Fruit) Delete(ctx context.Context, id int64) (affectedRow int64, err error) {
-	affectedRow, err = factory.DB(ctx).Where("id=?", id).Delete(&Fruit{})
-	return
+func (Fruit) Delete(ctx context.Context, id int64) (int64, error) {
+	return factory.DB(ctx).Where("id=?", id).Delete(&Fruit{})
 }
 
-func (Fruit) GetWithStoreById(ctx context.Context, id int64) (has bool, dto FruitStoreDto, err error) {
-	has, err = factory.DB(ctx).Table("fruit").Alias("a").
+func (Fruit) GetWithStoreById(ctx context.Context, id int64) (bool, FruitStoreDto, error) {
+	var dto FruitStoreDto
+	has, err := factory.DB(ctx).Table("fruit").Alias("a").
 		Join("inner", []string{"store", "b"}, "a.store_code = b.code").
 		Select(`a.id,a.name,a.color,a.price,b.name as store_name`).
 		Where("a.id=?", id).Get(&dto)
-	return
+	return has, dto, err
 }
