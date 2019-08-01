@@ -46,10 +46,10 @@ func (FruitApiController) GetAll(c echo.Context) error {
 	}
 	totalCount, items, err := models.Fruit{}.GetAll(c.Request().Context(), v.Sortby, v.Order, v.SkipCount, v.MaxResultCount)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotFoundError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotFoundError(), err)
 	}
 	if len(items) == 0 {
-		return ReturnApiFail(c, http.StatusNotFound, api.NotFoundError())
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError())
 	}
 	return ReturnApiSucc(c, http.StatusOK, api.ArrayResult{
 		TotalCount: totalCount,
@@ -78,22 +78,22 @@ func (d FruitApiController) GetOne(c echo.Context) error {
 	if withStore == true {
 		has, fruit, err := models.Fruit{}.GetWithStoreById(c.Request().Context(), id)
 		if err != nil {
-			return ReturnApiFail(c, http.StatusOK, api.NotFoundError(), err)
+			return ReturnApiFail(c, http.StatusInternalServerError, api.NotFoundError(), err)
 		}
 		if has == false {
 			param := fmt.Sprintf("?id=%v&with_store=true", id)
-			return ReturnApiFail(c, http.StatusNotFound, api.NotFoundError(), param)
+			return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError(), param)
 		}
 		return ReturnApiSucc(c, http.StatusOK, fruit)
 	}
 
 	has, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotFoundError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotFoundError(), err)
 	}
 	if !has {
 		param := fmt.Sprintf("?id=%v", id)
-		return ReturnApiFail(c, http.StatusNotFound, api.NotFoundError(), param)
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError(), param)
 	}
 	return ReturnApiSucc(c, http.StatusOK, fruit)
 }
@@ -118,17 +118,17 @@ func (d FruitApiController) Create(c echo.Context) error {
 	}
 	has, _, err := models.Fruit{}.GetByCode(c.Request().Context(), v.Code)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotCreatedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotCreatedError(), err)
 	}
 	if has {
-		return ReturnApiFail(c, http.StatusOK, api.NotCreatedError(), "code has exist")
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotCreatedError(), "code has exist")
 	}
 	affectedRow, err := v.Create(c.Request().Context())
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotCreatedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotCreatedError(), err)
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusOK, api.NotCreatedError())
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotCreatedError())
 	}
 	return ReturnApiSucc(c, http.StatusCreated, v)
 }
@@ -153,18 +153,18 @@ func (d FruitApiController) Update(c echo.Context) error {
 	}
 	has, _, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotUpdatedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotUpdatedError(), err)
 
 	}
 	if has == false {
-		return ReturnApiFail(c, http.StatusNotFound, api.NotUpdatedError(), "id has not found")
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotUpdatedError(), "id has not found")
 	}
 	affectedRow, err := v.Update(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotUpdatedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotUpdatedError(), err)
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusOK, api.NotUpdatedError())
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotUpdatedError())
 	}
 	return ReturnApiSucc(c, http.StatusNoContent, nil)
 }
@@ -180,17 +180,17 @@ func (d FruitApiController) Delete(c echo.Context) error {
 	}
 	has, _, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotDeletedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotDeletedError(), err)
 	}
 	if has == false {
-		return ReturnApiFail(c, http.StatusNotFound, api.NotDeletedError(), "id has not found")
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotDeletedError(), "id has not found")
 	}
 	affectedRow, err := models.Fruit{}.Delete(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusOK, api.NotDeletedError(), err)
+		return ReturnApiFail(c, http.StatusInternalServerError, api.NotDeletedError(), err)
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusOK, api.NotDeletedError())
+		return ReturnApiFail(c, http.StatusBadRequest, api.NotDeletedError())
 	}
 	return ReturnApiSucc(c, http.StatusNoContent, nil)
 }
