@@ -50,7 +50,7 @@ func main() {
 	r.SetUI(echoswagger.UISetting{
 		HideTop: true,
 	})
-	controllers.FruitApiController{}.Init(r.Group("fruits", "/fruits"))
+	controllers.FruitApiController{}.Init(r.Group("fruits", "v1/fruits"))
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
