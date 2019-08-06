@@ -24,3 +24,7 @@ func InitTable(db *xorm.Engine) error {
 	}
 	return nil
 }
+
+func DropTables(db *xorm.Engine) error {
+	return db.DropTables(new(Fruit))
+}

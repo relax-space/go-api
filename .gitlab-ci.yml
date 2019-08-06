@@ -19,10 +19,11 @@ job2:
   tags:
     - golang
   script:
-   - $GOPATH/rtc/run-test-container run go-api
+   - $GOPATH/rtc/run-test-container run go-api -c msl
    - >
      docker run --rm -v $(pwd):/go/src/go-api -w /go/src/go-api 
-     -e SQL_DRIVER=mysql -e Fruit_CONN='root:1234@tcp(10.202.101.230:3308)/fruit'  
+     --add-host=test-kafka:10.202.101.230 
+     -e APP_ENV=test-server -e JWT_SECRET=$JWT_SECRET
      pangpanglabs/golang:builder 
      bash -c 'git -C $GOPATH/src/github.com/pangpanglabs/echoswagger pull  && 
      go get -v -d && go test -p 1 -count 1 -v -coverpkg=./... -coverprofile coverage.out ./... && go tool cover -func=coverage.out'

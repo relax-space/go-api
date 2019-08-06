@@ -166,7 +166,7 @@ func (d FruitApiController) Update(c echo.Context) error {
 	if affectedRow == int64(0) {
 		return ReturnApiFail(c, http.StatusBadRequest, api.NotUpdatedError())
 	}
-	return ReturnApiSucc(c, http.StatusNoContent, nil)
+	return ReturnApiSucc(c, http.StatusOK, v)
 }
 
 /*
@@ -178,7 +178,7 @@ func (d FruitApiController) Delete(c echo.Context) error {
 	if err != nil {
 		return ReturnApiFail(c, http.StatusBadRequest, api.InvalidParamError("id", c.Param("id"), err))
 	}
-	has, _, err := models.Fruit{}.GetById(c.Request().Context(), id)
+	has, v, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
 		return ReturnApiFail(c, http.StatusInternalServerError, api.NotDeletedError(), err)
 	}
@@ -192,5 +192,5 @@ func (d FruitApiController) Delete(c echo.Context) error {
 	if affectedRow == int64(0) {
 		return ReturnApiFail(c, http.StatusBadRequest, api.NotDeletedError())
 	}
-	return ReturnApiSucc(c, http.StatusNoContent, nil)
+	return ReturnApiSucc(c, http.StatusOK, v)
 }
