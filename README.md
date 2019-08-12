@@ -28,10 +28,10 @@ Visit swagger   http://127.0.0.1:8080/docs
 
 ## Extensions
 
-- auth: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-auth) 
-- validator: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-validator) [github](https://github.com/relax-space/go-api-validator)
-- windows: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-windows.git) [github](https://github.com/relax-space/go-api-windows)
-- producer: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-producer) [github](https://github.com/relax-space/go-api-producer)
-- consumer: [gitlab](https://gitlab.p2shop.cn:8443/sample/go-api-consumer) [github](https://github.com/relax-space/go-api-consumer)
+- auth: https://gitlab.p2shop.cn:8443/sample/go-api-auth 
+- validator: https://gitlab.p2shop.cn:8443/sample/go-api-validator [github](https://github.com/relax-space/go-api-validator)
+- windows: https://gitlab.p2shop.cn:8443/sample/go-api-windows.git [github](https://github.com/relax-space/go-api-windows)
+- producer: https://gitlab.p2shop.cn:8443/sample/go-api-producer [github](https://github.com/relax-space/go-api-producer)
+- consumer: https://gitlab.p2shop.cn:8443/sample/go-api-consumer [github](https://github.com/relax-space/go-api-consumer)
 
 
