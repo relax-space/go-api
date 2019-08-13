@@ -24,6 +24,7 @@ func ReturnApiFail(c echo.Context, status int, apiError api.Error, detail ...int
 }
 
 func ReturnApiSucc(c echo.Context, status int, result interface{}) error {
+	behaviorlog.FromCtx(c.Request().Context()).WithBizAttrs(map[string]interface{}{"resp": result})
 	return c.JSON(status, api.Result{
 		Success: true,
 		Result:  result,
