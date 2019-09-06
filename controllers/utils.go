@@ -1,25 +1,23 @@
 package controllers
 
 import (
-	"fmt"
+	"nomni/utils/api"
 
 	"github.com/pangpanglabs/goutils/behaviorlog"
-
-	"nomni/utils/api"
 
 	"github.com/labstack/echo"
 )
 
-func ReturnApiFail(c echo.Context, status int, apiError api.Error, detail ...interface{}) error {
-	behaviorlog.FromCtx(c.Request().Context()).WithError(apiError)
-	for _, d := range detail {
-		if d != nil {
-			apiError.Details = fmt.Sprint(detail...)
-		}
+func ReturnApiFail(c echo.Context, status int, err error) error {
+	behaviorlog.FromCtx(c.Request().Context()).WithError(err)
+	if apiError, ok := err.(api.Error); ok {
+		return c.JSON(status, api.Result{
+			Error: apiError,
+		})
 	}
 	return c.JSON(status, api.Result{
 		Success: false,
-		Error:   apiError,
+		Error:   api.UnknownError(err),
 	})
 }
 
