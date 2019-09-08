@@ -9,6 +9,4 @@
 variables:
   SERVICE_NAME: go-api
 include: 
-  - project: 'qa/gitlab-ci'
-    ref: qa
-    file: '/templates/go.gitlab-ci.yml'
+  - '******'
