@@ -17,7 +17,7 @@ $ cd $GOPATH/src/go-api
 $ go run .
 ```
 
-Visit           http://127.0.0.1:8080/  
+Visit           http://127.0.0.1:8080/ping 
 Visit swagger   http://127.0.0.1:8080/docs
 
 
