@@ -1,6 +1,7 @@
 database:
   driver: mysql
-  connection: xxx:xxx@tcp(10.30.8.55:3306)/fruit?charset=utf8&parseTime=True&loc=UTC
+  connection: fruit:Eland123@tcp(10.30.8.55:3306)/fruit?charset=utf8&parseTime=True&loc=Local
+  name: fruit
   logger:
     kafka:
       brokers:
