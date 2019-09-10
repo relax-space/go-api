@@ -1,7 +1,5 @@
 envs:
-  - APP_ENV=test
-  - SQL_DRIVER=mysql
-  - FRUIT_CONN=root:1234@tcp(test-mysql:3306)/fruit
+  - APP_ENV=rtc
 isProjectKafka: false
 ports: 
   - 8080

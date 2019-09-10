@@ -15,7 +15,6 @@ import (
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/pangpanglabs/goutils/behaviorlog"
 	configutil "github.com/pangpanglabs/goutils/config"
 	"github.com/pangpanglabs/goutils/echomiddleware"

@@ -29,7 +29,6 @@ type C struct {
 	Database struct {
 		Driver     string
 		Connection string
-		Name       string
 		Logger     struct {
 			Kafka echomiddleware.KafkaConfig
 		}

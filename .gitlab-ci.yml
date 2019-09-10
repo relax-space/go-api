@@ -1,32 +1,12 @@
-before_script:
-   - docker info
-stages:
-  - build
-  - unit-test
-job1:
-  stage: build
-  tags:
-    - golang
-  script:
-   - >
-     docker run --rm -v $(pwd):/go/src/go-api -w /go/src/go-api pangpanglabs/golang:builder 
-     bash -c 'git -C $GOPATH/src/github.com/pangpanglabs/echoswagger pull  && 
-     go get -v -d && go build'
-  only:
-    - merge_requests
-job2:
-  stage: unit-test
-  tags:
-    - golang
-  script:
-   - $GOPATH/rtc/run-test-container run go-api -c msl
-   - >
-     docker run --rm -v $(pwd):/go/src/go-api -w /go/src/go-api 
-     --add-host=test-kafka:10.202.101.230 
-     -e APP_ENV=test-server -e JWT_SECRET=$JWT_SECRET
-     pangpanglabs/golang:builder 
-     bash -c 'git -C $GOPATH/src/github.com/pangpanglabs/echoswagger pull  && 
-     go get -v -d && go test -p 1 -count 1 -v -coverpkg=./... -coverprofile coverage.out ./... && go tool cover -func=coverage.out'
-  coverage: '/\d+\.\d+%/'
-  only:
-    - merge_requests
+# variables:
+  # SERVICE_NAME: go-api # for example: product-api-pangpang-brand from  https://gitlab.p2shop.cn:8443/data/rtc-data/blob/qa/config.qa.yml
+  # FOLDERNAME: ""  # for example: nomni/
+  # GITLABWITCH: "p2shop" # p2shop srx srx-p2shop
+    # for example:
+    # p2shop: 1. git on gitlab.p2shop.cn, 2. jenkins on ci.p2shop.com.cn
+    # srx: 1. git on gitlab.srxcloud.com, 2. jenkins on jenkins.srxcloud.com
+    # srx-p2shop: 1. git on gitlab.srxcloud.com, 2. jenkins on ci.p2shop.com.cn
+variables:
+  SERVICE_NAME: go-api
+include: 
+  - '******'
