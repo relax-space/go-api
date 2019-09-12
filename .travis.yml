@@ -1,27 +1,30 @@
 language: go
-
+env:
+  - dbname=fruit
 go:
-  - 1.9.x
   - 1.10.x
   - 1.11.x
   - 1.12.x
   - master
 install:
-  - go get github.com/Shopify/sarama
-  - go get github.com/json-iterator/go
-  - go get gopkg.in/go-playground/validator.v9
-  - go get github.com/labstack/echo
-  - go get github.com/go-xorm/xorm
-  - go get github.com/spf13/viper
-  - go get github.com/asaskevich/govalidator
-  - go get github.com/dgrijalva/jwt-go
-  - go get github.com/sirupsen/logrus
-  - go get github.com/pangpanglabs/goutils/...
-  - go get github.com/go-sql-driver/mysql
-  - go get github.com/mattn/go-sqlite3
-  - go get github.com/opentracing/opentracing-go
-  - go get github.com/openzipkin/zipkin-go-opentracing
-  - go get github.com/pangpanglabs/echoswagger
-script: go test -coverprofile=coverage.txt -covermode=atomic github.com/pangpanglabs/echosample/...
+  - mv $GOPATH/src/github.com/$TRAVIS_REPO_SLUG $GOPATH/src/
+  - cd $GOPATH/src/${TRAVIS_REPO_SLUG##*/}
+  - go get -t -v ./...
+services:
+  - mysql
+addons:
+  apt:
+   sources:
+    - mysql-5.7-trusty
+   packages:
+    - mysql-server
+    - mysql-client
+before_script:
+  - echo -e "[mysqld]\nport=3308" | sudo tee -a /etc/mysql/my.cnf
+  - sudo service mysql restart
+  - mysql -e "create database IF NOT EXISTS $dbname;"
+  - echo "USE mysql;\nUPDATE user SET authentication_string=PASSWORD('1234') WHERE user='root';\nUPDATE user SET plugin='mysql_native_password';\nFLUSH PRIVILEGES;" | mysql -u root
+script: 
+  - go test -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
   - bash <(curl -s https://codecov.io/bash)
