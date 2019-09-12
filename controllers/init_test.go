@@ -6,10 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"go-api/config"
-	"go-api/models"
 	"nomni/utils/auth"
 	"nomni/utils/validator"
+
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"

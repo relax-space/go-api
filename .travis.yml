@@ -18,10 +18,14 @@ install:
   - go get github.com/sirupsen/logrus
   - go get github.com/pangpanglabs/goutils/...
   - go get github.com/go-sql-driver/mysql
-  - go get github.com/mattn/go-sqlite3
   - go get github.com/opentracing/opentracing-go
   - go get github.com/openzipkin/zipkin-go-opentracing
   - go get github.com/pangpanglabs/echoswagger
-script: go test -coverprofile=coverage.txt -covermode=atomic github.com/pangpanglabs/echosample/...
+services:
+  - mysql
+before_script:
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('1234') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+  - mysql -e "create database IF NOT EXISTS fruit;"
+script: go test -coverprofile=coverage.txt -covermode=atomic github.com/relax-space/go-api/...
 after_success:
   - bash <(curl -s https://codecov.io/bash)

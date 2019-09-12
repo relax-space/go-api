@@ -2,10 +2,11 @@ package models_test
 
 import (
 	"context"
-	"go-api/config"
-	"go-api/models"
 	"os"
 	"testing"
+
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
