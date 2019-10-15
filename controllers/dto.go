@@ -1,7 +1,8 @@
 package controllers
 
 const (
-	DefaultMaxResultCount = 30
+	DefaultMaxResultCount      = 30
+	DefaultPrintMaxResultCount = 2000
 )
 
 type SearchInput struct {
