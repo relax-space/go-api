@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"nomni/utils/api"
 
 	"github.com/pangpanglabs/goutils/behaviorlog"
