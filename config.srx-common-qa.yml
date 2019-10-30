@@ -1,0 +1,20 @@
+database:
+  driver: mysql
+  connection: fruit:Eland123@tcp(192.168.0.3:3306)/fruit?charset=utf8&parseTime=True&loc=UTC
+  logger:
+    kafka:
+      brokers:
+        - 192.168.0.3:9092
+      topic: sqllog
+behaviorLog:
+  kafka:
+    brokers:
+      - 192.168.0.3:9092
+    topic: behaviorlog
+eventBroker:
+  kafka:
+    brokers:
+      - 192.168.0.3:9092
+    topic: fruit
+serviceName: go-api
+httpport: 8080
