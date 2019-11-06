@@ -1,5 +1,5 @@
 # variables:
-  # SERVICE_NAME: go-api # Please confirm: 1. The base database has been added (database:pangpang-mysql), 2. The project startup information has been added (database:rtc)
+  # SERVICE_NAME: go-api # SERVICE_NAME: area-china-api-pangpang-common # serviceName + namespace
   # FOLDERNAME: ""  # for example: nomni/
   # GOBUILD_ENV: ""
   # GOTEST_ENV: "-e JWT_SECRET=1234"
