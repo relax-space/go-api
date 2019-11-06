@@ -3,7 +3,7 @@
 
 # go-api template
 
-You can quickly create an echo-based api project
+Quickly create an echo-based api project, [more](#Extensions)
 
 ## Getting Started
 
@@ -33,10 +33,11 @@ Visit swagger   http://127.0.0.1:8080/docs
 ## Extensions
 
 - auth: https://gitlab.p2shop.cn:8443/sample/go-api-auth 
-- validator:[github](https://github.com/relax-space/go-api-validator) https://gitlab.p2shop.cn:8443/sample/go-api-validator 
-- windows: [github](https://github.com/relax-space/go-api-windows) https://gitlab.p2shop.cn:8443/sample/go-api-windows.git 
-- producer: [github](https://github.com/relax-space/go-api-producer) https://gitlab.p2shop.cn:8443/sample/go-api-producer 
-- consumer: [github](https://github.com/relax-space/go-api-consumer) https://gitlab.p2shop.cn:8443/sample/go-api-consumer 
-- twodb: [github](https://github.com/relax-space/go-api-twodb) https://gitlab.p2shop.cn:8443/sample/go-api-twodb 
+- validator:[github](https://github.com/relax-space/go-api-validator) | https://gitlab.p2shop.cn:8443/sample/go-api-validator 
+- windows: [github](https://github.com/relax-space/go-api-windows) | https://gitlab.p2shop.cn:8443/sample/go-api-windows.git 
+- producer: [github](https://github.com/relax-space/go-api-producer) | https://gitlab.p2shop.cn:8443/sample/go-api-producer 
+- consumer: [github](https://github.com/relax-space/go-api-consumer) | https://gitlab.p2shop.cn:8443/sample/go-api-consumer 
+- twodb: [github](https://github.com/relax-space/go-api-twodb) | https://gitlab.p2shop.cn:8443/sample/go-api-twodb 
+- sqlserver: [github](https://github.com/relax-space/go-api-sqlserver) | https://gitlab.p2shop.cn:8443/sample/go-api-sqlserver 
 
 
