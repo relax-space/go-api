@@ -3,7 +3,7 @@
 
 # go-api template
 
-You can quickly create an echo-based api project
+Quickly create an echo-based api project, [more](#Extensions)
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ Visit swagger   http://127.0.0.1:8080/docs
 ## References
 
 - echosample: [echosample](https://github.com/pangpanglabs/echosample)
-- vendor: `nomni/utils/api`, `nomni/utils/validator`,`nomni/utils/eventconsume`,`nomni/utils/auth`
+- vendor: `nomni/utils/api`, `nomni/utils/validator`
 
 ## Extensions
 
