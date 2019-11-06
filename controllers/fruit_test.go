@@ -31,7 +31,6 @@ func TestFruitCRUD(t *testing.T) {
 		pb, _ := json.Marshal(p)
 		t.Run(fmt.Sprint("Create#", i+1), func(t *testing.T) {
 			req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(pb))
-			setHeader(req)
 			rec := httptest.NewRecorder()
 			test.Ok(t, handleWithFilter(controllers.FruitApiController{}.Create, echoApp.NewContext(req, rec)))
 			test.Equals(t, http.StatusCreated, rec.Code)
@@ -39,8 +38,7 @@ func TestFruitCRUD(t *testing.T) {
 	}
 
 	t.Run("GetAll", func(t *testing.T) {
-		req := httptest.NewRequest(echo.GET, "/v1/products", nil)
-		setHeader(req)
+		req := httptest.NewRequest(echo.GET, "/v1/fruits", nil)
 		rec := httptest.NewRecorder()
 		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetAll, echoApp.NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
@@ -63,7 +61,6 @@ func TestFruitCRUD(t *testing.T) {
 
 	t.Run("GetOne", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/1", nil)
-		setHeader(req)
 		rec := httptest.NewRecorder()
 		c := echoApp.NewContext(req, rec)
 		c.SetPath("/v1/fruit/:id")
@@ -85,7 +82,6 @@ func TestFruitCRUD(t *testing.T) {
 		fruit.Code = "fruit#updated"
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/", bytes.NewReader(pb))
-		setHeader(req)
 		rec := httptest.NewRecorder()
 		c := echoApp.NewContext(req, rec)
 		c.SetPath("/v1/fruits/:id")
@@ -104,7 +100,6 @@ func TestFruitCRUD(t *testing.T) {
 	for i, p := range fruits {
 		t.Run(fmt.Sprint("Delete#", i+1), func(t *testing.T) {
 			req := httptest.NewRequest(echo.DELETE, "/", nil)
-			setHeader(req)
 			rec := httptest.NewRecorder()
 			c := echoApp.NewContext(req, rec)
 			c.SetPath("/v1/fruits/:id")
