@@ -39,5 +39,6 @@ Visit swagger   http://127.0.0.1:8080/docs
 - consumer: [github](https://github.com/relax-space/go-api-consumer) | https://gitlab.p2shop.cn:8443/sample/go-api-consumer 
 - twodb: [github](https://github.com/relax-space/go-api-twodb) | https://gitlab.p2shop.cn:8443/sample/go-api-twodb 
 - sqlserver: [github](https://github.com/relax-space/go-api-sqlserver) | https://gitlab.p2shop.cn:8443/sample/go-api-sqlserver 
+- postgres: [github](https://github.com/elandcloud/go-api-postgres) | https://gitlab.p2shop.cn:8443/sample/go-api-postgres
 
 
