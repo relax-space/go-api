@@ -2,19 +2,26 @@ package controllers_test
 
 import (
 	"context"
+	"nomni/utils/validator"
 	"os"
 	"testing"
 
 	"go-api/config"
 	"go-api/models"
-	"nomni/utils/validator"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/behaviorlog"
-	configutil "github.com/pangpanglabs/goutils/config"
 	"github.com/pangpanglabs/goutils/echomiddleware"
+	"github.com/sirupsen/logrus"
+
+	"log"
+	"net/http"
+
+	configutil "github.com/pangpanglabs/goutils/config"
+	"github.com/pangpanglabs/goutils/ctxdb"
+	"github.com/pangpanglabs/goutils/kafka"
 )
 
 var (
@@ -36,16 +43,13 @@ func enterTest() *xorm.Engine {
 	if err != nil {
 		panic(err)
 	}
-	if err = models.DropTables(xormEngine); err != nil {
-		panic(err)
-	}
 	if err = models.InitTable(xormEngine); err != nil {
 		panic(err)
 	}
 
 	echoApp = echo.New()
 	echoApp.Validator = validator.New()
-	db := echomiddleware.ContextDB("test", xormEngine, echomiddleware.KafkaConfig{})
+	behaviorlog.SetLogLevel(logrus.InfoLevel)
 	behaviorlogger := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
@@ -55,7 +59,9 @@ func enterTest() *xorm.Engine {
 			return next(c)
 		}
 	}
-	header := func(next echo.HandlerFunc) echo.HandlerFunc {
+	db := ContextDB("test", xormEngine, echomiddleware.KafkaConfig{})
+
+	headerCtx := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -63,8 +69,9 @@ func enterTest() *xorm.Engine {
 			return next(c)
 		}
 	}
+
 	handleWithFilter = func(handlerFunc echo.HandlerFunc, c echo.Context) error {
-		return behaviorlogger(header(db(handlerFunc)))(c)
+		return behaviorlogger(headerCtx(db(handlerFunc)))(c)
 	}
 	return xormEngine
 }
@@ -73,4 +80,45 @@ func exitTest(db *xorm.Engine) {
 	// if err := models.DropTables(db); err != nil {
 	// 	panic(err)
 	// }
+}
+
+func ContextDB(service string, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
+	return ContextDBWithName(service, echomiddleware.ContextDBName, xormEngine, kafkaConfig)
+}
+func ContextDBWithName(service string, contexDBName echomiddleware.ContextDBType, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
+	db := ctxdb.New(xormEngine, service, kafkaConfig)
+
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			ctx := req.Context()
+
+			session := db.NewSession(ctx)
+			defer session.Close()
+
+			c.SetRequest(req.WithContext(context.WithValue(ctx, contexDBName, session)))
+
+			switch req.Method {
+			case "POST", "PUT", "DELETE", "PATCH":
+				if err := session.Begin(); err != nil {
+					log.Println(err)
+				}
+				if err := next(c); err != nil {
+					session.Rollback()
+					return err
+				}
+				if c.Response().Status >= 500 {
+					session.Rollback()
+					return nil
+				}
+				if err := session.Rollback(); err != nil { // rollback data
+					return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				}
+			default:
+				return next(c)
+			}
+
+			return nil
+		}
+	}
 }
