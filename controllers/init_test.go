@@ -50,15 +50,7 @@ func enterTest() *xorm.Engine {
 	echoApp = echo.New()
 	echoApp.Validator = validator.New()
 	behaviorlog.SetLogLevel(logrus.InfoLevel)
-	behaviorlogger := func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			req := c.Request()
-			c.SetRequest(req.WithContext(context.WithValue(req.Context(),
-				behaviorlog.LogContextName, behaviorlog.New("test", req),
-			)))
-			return next(c)
-		}
-	}
+	behaviorlogger := echomiddleware.BehaviorLogger(c.ServiceName, c.BehaviorLog.Kafka)
 	db := ContextDB("test", xormEngine, echomiddleware.KafkaConfig{})
 
 	headerCtx := func(next echo.HandlerFunc) echo.HandlerFunc {
