@@ -11,10 +11,5 @@ behaviorLog:
     brokers:
       - rtc-kafka:9092
     topic: behaviorlog
-eventBroker:
-  kafka:
-    brokers:
-      - rtc-kafka:9092
-    topic: fruit
 serviceName: go-api
 httpPort: 8080

@@ -15,12 +15,5 @@ behaviorLog:
       - 192.168.0.145:9092
       - 192.168.0.148:9092
     topic: behaviorlog
-eventBroker:
-  kafka:
-    brokers:
-      - 192.168.0.76:9092
-      - 192.168.0.145:9092
-      - 192.168.0.148:9092
-    topic: fruit
 serviceName: go-api
 httpport: 8080
