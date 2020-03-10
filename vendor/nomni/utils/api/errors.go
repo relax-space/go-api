@@ -39,7 +39,9 @@ func NotCreatedError() Error {
 func InvalidFieldError(field string) Error {
 	return newError(10018, fmt.Sprintf("Invalid fields [ %v ]", field), nil)
 }
-
+func HasExistError() Error {
+	return newError(10019, "Resource already exists", nil)
+}
 func newError(code int, message string, details interface{}) Error {
 	return Error{
 		Code:    code,
