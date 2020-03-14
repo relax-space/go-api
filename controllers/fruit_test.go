@@ -36,7 +36,7 @@ func TestFruitCRUD(t *testing.T) {
 				StoreCode: "10002",
 			},
 		}
-		req := httptest.NewRequest(echo.GET, "/v1/fruits", nil)
+		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=2", nil)
 		rec := httptest.NewRecorder()
 		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetAll, echoApp.NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
@@ -49,7 +49,7 @@ func TestFruitCRUD(t *testing.T) {
 			Success bool `json:"success"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
-		test.Equals(t, 2, v.Result.TotalCount)
+		test.Assert(t,v.Result.TotalCount>=2,"result must be greater than 2")
 		test.Equals(t, expFruits[0].Id, v.Result.Items[0].Id)
 		test.Equals(t, expFruits[0].Code, v.Result.Items[0].Code)
 		test.Equals(t, expFruits[0].Name, v.Result.Items[0].Name)
