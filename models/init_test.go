@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"bytes"
 	"context"
 	"go-api/config"
 	"go-api/factory"
@@ -93,7 +92,7 @@ func importFile(db *xorm.Engine, fileName string) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Import(bytes.NewBuffer(b))
+	_, err = db.Exec(string(b))
 	if err != nil {
 		return err
 	}
