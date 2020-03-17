@@ -2,10 +2,6 @@ package models_test
 
 import (
 	"context"
-	"go-api/config"
-	"go-api/factory"
-	"go-api/models"
-
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"go-api/config"
+	"go-api/factory"
+	"go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
@@ -99,6 +99,9 @@ func importFile(db *xorm.Engine, fileName string) error {
 	return nil
 }
 func writeUrl(url, fileName, jwtToken string) (err error) {
+	if len(jwtToken) ==0{// don't download
+		return
+	}
 	req := httpreq.New(http.MethodGet, url, nil, func(httpReq *httpreq.HttpReq) error {
 		httpReq.RespDataType = httpreq.ByteArrayType
 		return nil
@@ -119,9 +122,13 @@ func writeUrl(url, fileName, jwtToken string) (err error) {
 }
 
 func getToken() string {
+	jwtKey :=os.Getenv("JWT_SECRET")
+	if len(jwtKey) ==0{
+		return ""
+	}
 	token, _ := jwtutil.NewTokenWithSecret(map[string]interface{}{
 		"aud": "membership", "tenantCode": "pangpang", "iss": "membership",
 		"nbf": time.Now().Add(-5 * time.Minute).Unix(),
-	}, os.Getenv("JWT_SECRET"))
+	}, jwtKey)
 	return token
 }
