@@ -17,6 +17,4 @@
 debug
 tmp/
 go-api
-models/*.sql
-controllers/*.sql
 
