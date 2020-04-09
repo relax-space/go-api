@@ -1,9 +1,9 @@
 package models_test
 
 import (
-	"go-api/models"
 	"testing"
-
+	
+	"github.com/relax-space/go-api/models"
 	"github.com/pangpanglabs/goutils/test"
 )
 

@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"go-api/config"
-	"go-api/factory"
-	"go-api/models"
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/factory"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"

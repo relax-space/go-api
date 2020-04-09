@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-xorm/xorm"
 
-	"go-api/factory"
+	"github.com/relax-space/go-api/factory"
 )
 
 type Fruit struct {

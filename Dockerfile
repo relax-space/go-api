@@ -1,5 +1,6 @@
 FROM pangpanglabs/golang:builder-beta AS builder
 # if nomni use: replace WORKDIR with /go/src/nomni/go-api
+RUN go env -w GOPROXY=https://goproxy.cn,direct
 WORKDIR /go/src/go-api
 COPY . .
 # disable cgo
@@ -14,7 +15,7 @@ RUN echo ">>> 3: go install" && go install
 FROM pangpanglabs/alpine-ssl
 WORKDIR /go/bin/
 # copy config files to image, if nomni use: replace WORKDIR with /go/src/nomni/go-api
-COPY --from=builder /go/src/go-api/*.yml ./
+COPY --from=builder /go/src/*.yml ./
 # copy execute file to image
 COPY --from=builder /go/bin/go-api ./
 EXPOSE 8080

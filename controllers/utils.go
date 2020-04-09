@@ -1,31 +1,45 @@
 package controllers
 
 import (
-	"fmt"
-	"nomni/utils/api"
+	"errors"
+	"net/http"
 
+	"github.com/hublabs/common/api"
 	"github.com/pangpanglabs/goutils/behaviorlog"
 
 	"github.com/labstack/echo"
 )
 
-func ReturnApiFail(c echo.Context, status int, err error) error {
+func renderFail(c echo.Context, err error) error {
+	if err == nil {
+		err = api.ErrorUnknown.New(nil)
+	}
 	behaviorlog.FromCtx(c.Request().Context()).WithError(err)
-	if apiError, ok := err.(api.Error); ok {
-		return c.JSON(status, api.Result{
-			Error: apiError,
+	var apiError api.Error
+	if ok := errors.As(err, &apiError); ok {
+		return c.JSON(apiError.Status(), api.Result{
+			Success: false,
+			Error:   apiError,
 		})
 	}
-	return c.JSON(status, api.Result{
-		Success: false,
-		Error:   api.UnknownError(err),
-	})
+	return err
 }
 
-func ReturnApiSucc(c echo.Context, status int, result interface{}) error {
-	if len(fmt.Sprintf("%#v", result)) < DefaultPrintMaxResultCount {
-		behaviorlog.FromCtx(c.Request().Context()).WithBizAttrs(map[string]interface{}{"resp": result})
+func renderSuccArray(c echo.Context, withHasMore, hasMore bool, totalCount int64, result interface{}) error {
+	if withHasMore {
+		return renderSucc(c, http.StatusOK, api.ArrayResultMore{
+			HasMore: hasMore,
+			Items:   result,
+		})
+	} else {
+		return renderSucc(c, http.StatusOK, api.ArrayResult{
+			TotalCount: totalCount,
+			Items:      result,
+		})
 	}
+}
+
+func renderSucc(c echo.Context, status int, result interface{}) error {
 	return c.JSON(status, api.Result{
 		Success: true,
 		Result:  result,
