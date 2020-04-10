@@ -1,14 +1,45 @@
 package models_test
 
 import (
-	"go-api/models"
 	"testing"
-
+	
+	"github.com/relax-space/go-api/models"
 	"github.com/pangpanglabs/goutils/test"
 )
 
 func TestFruitCRUD(t *testing.T) {
-	var ID int64
+	t.Run("GetAll", func(t *testing.T) {
+		_,count, fruits, err := models.Fruit{}.GetAll(ctx,[]string{"id"},[]string{"asc"},0, 1,false)
+		test.Ok(t, err)
+		test.Assert(t,count>=1,"result must be greater than 1")
+		v :=fruits[0]
+		test.Equals(t, int64(1), v.Id)
+		test.Equals(t, "apple", v.Code)
+		test.Equals(t, "apple", v.Name)
+		test.Equals(t, int64(11), v.Price)
+		test.Equals(t, "10001", v.StoreCode)
+	})
+	t.Run("GetAll_hasMore", func(t *testing.T) {
+		hasMore,_, fruits, err := models.Fruit{}.GetAll(ctx,[]string{"id"},[]string{"asc"},0, 1,true)
+		test.Ok(t, err)
+		v :=fruits[0]
+		test.Equals(t, true,hasMore)
+		test.Equals(t, int64(1), v.Id)
+		test.Equals(t, "apple", v.Code)
+		test.Equals(t, "apple", v.Name)
+		test.Equals(t, int64(11), v.Price)
+		test.Equals(t, "10001", v.StoreCode)
+	})
+	t.Run("Get", func(t *testing.T) {
+		has, v, err := models.Fruit{}.GetById(ctx, 1)
+		test.Ok(t, err)
+		test.Equals(t, true, has)
+		test.Equals(t, int64(1), v.Id)
+		test.Equals(t, "apple", v.Code)
+		test.Equals(t, "apple", v.Name)
+		test.Equals(t, int64(11), v.Price)
+		test.Equals(t, "10001", v.StoreCode)
+	})
 	t.Run("Create", func(t *testing.T) {
 		code := "apple"
 		f := &models.Fruit{
@@ -17,37 +48,22 @@ func TestFruitCRUD(t *testing.T) {
 		affectedRow, err := f.Create(ctx)
 		test.Ok(t, err)
 		test.Equals(t, int64(1), affectedRow)
-		ID = f.Id
-		test.Assert(t, ID != int64(0), "create failure")
+		test.Assert(t, f.Id != int64(0), "create failure")
 	})
-	t.Run("Get", func(t *testing.T) {
-		has, v, err := models.Fruit{}.GetById(ctx, ID)
-		test.Ok(t, err)
-		test.Equals(t, true, has)
-		test.Equals(t, "apple", v.Code)
-	})
+
 	t.Run("Update", func(t *testing.T) {
 		var price int64 = 10
 		f := &models.Fruit{
 			Price: price,
 		}
-		affectedRow, err := f.Update(ctx, ID)
+		affectedRow, err := f.Update(ctx, 1)
 		test.Ok(t, err)
 		test.Equals(t, int64(1), affectedRow)
-
-		has, v, err := models.Fruit{}.GetById(ctx, ID)
-		test.Ok(t, err)
-		test.Equals(t, true, has)
-		test.Equals(t, int64(10), v.Price)
-
 	})
 	t.Run("Delete", func(t *testing.T) {
-		affectedRow, err := models.Fruit{}.Delete(ctx, ID)
+		affectedRow, err := models.Fruit{}.Delete(ctx, 1)
 		test.Ok(t, err)
 		test.Equals(t, int64(1), affectedRow)
-		has, v, err := models.Fruit{}.GetById(ctx, ID)
-		test.Ok(t, err)
-		test.Equals(t, false, has)
-		test.Equals(t, int64(0), v.Id)
 	})
+	rollback()
 }

@@ -6,11 +6,6 @@ database:
       brokers:
         - 10.173.208.142:9092
       topic: sqllog
-eventBroker:
-  kafka:
-    brokers:
-      - 10.173.208.142:9092
-    topic: fruit
 behaviorLog:
   kafka:
     brokers:

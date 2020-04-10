@@ -2,15 +2,24 @@ package models_test
 
 import (
 	"context"
-	"go-api/config"
-	"go-api/models"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
+	"time"
+
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/factory"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	configutil "github.com/pangpanglabs/goutils/config"
 	"github.com/pangpanglabs/goutils/echomiddleware"
+	"github.com/pangpanglabs/goutils/httpreq"
+	"github.com/pangpanglabs/goutils/jwtutil"
 )
 
 var ctx context.Context
@@ -30,10 +39,7 @@ func enterTest() *xorm.Engine {
 		panic(err)
 	}
 	// xormEngine.ShowSQL(true)
-	if err = models.DropTables(xormEngine); err != nil {
-		panic(err)
-	}
-	if err = models.InitTable(xormEngine); err != nil {
+	if err = initData(xormEngine, true); err != nil {
 		panic(err)
 	}
 	ctx = context.WithValue(context.Background(), echomiddleware.ContextDBName, xormEngine)
@@ -42,4 +48,87 @@ func enterTest() *xorm.Engine {
 
 func exitTest(db *xorm.Engine) {
 	//db.Close()
+}
+
+func rollback() {
+	db := factory.DB(ctx).(*xorm.Engine)
+	if err := initData(db, false); err != nil {
+		panic(err)
+	}
+}
+
+func initData(xormEngine *xorm.Engine, isDownload bool) error {
+	if err := models.DropTables(xormEngine); err != nil {
+		return err
+	}
+	if err := models.InitTable(xormEngine); err != nil {
+		return err
+	}
+	if err := loadData(xormEngine, isDownload); err != nil {
+		return err
+	}
+	return nil
+}
+
+func loadData(db *xorm.Engine, isDownload bool) (err error) {
+	if isDownload {
+		urlStr := "https://dmz-staging.p2shop.com.cn/rtc-dmz-api/v1/dbfiles?nsPrefix=pangpang&nsSuffix=&dbName=fruit"
+		writeUrl(urlStr, "test.sql", getToken())
+	}
+	files, err := filepath.Glob("*.sql")
+	if err != nil {
+		return
+	}
+	for _, f := range files {
+		if err = importFile(db, f); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func importFile(db *xorm.Engine, fileName string) error {
+	b, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(string(b))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func writeUrl(url, fileName, jwtToken string) (err error) {
+	if len(jwtToken) ==0{// don't download
+		return
+	}
+	req := httpreq.New(http.MethodGet, url, nil, func(httpReq *httpreq.HttpReq) error {
+		httpReq.RespDataType = httpreq.ByteArrayType
+		return nil
+	})
+	resp, err := req.WithToken(jwtToken).RawCall()
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	out, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	return
+}
+
+func getToken() string {
+	jwtKey :=os.Getenv("JWT_SECRET")
+	if len(jwtKey) ==0{
+		return ""
+	}
+	token, _ := jwtutil.NewTokenWithSecret(map[string]interface{}{
+		"aud": "membership", "tenantCode": "pangpang", "iss": "membership",
+		"nbf": time.Now().Add(-5 * time.Minute).Unix(),
+	}, jwtKey)
+	return token
 }

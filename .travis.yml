@@ -2,9 +2,7 @@ language: go
 env:
   - dbname=fruit
 go:
-  - 1.10.x
-  - 1.11.x
-  - 1.12.x
+  - 1.13.x
   - master
 install:
   - mv $GOPATH/src/github.com/$TRAVIS_REPO_SLUG $GOPATH/src/
@@ -25,6 +23,6 @@ before_script:
   - mysql -e "create database IF NOT EXISTS $dbname;"
   - echo "USE mysql;\nUPDATE user SET authentication_string=PASSWORD('1234') WHERE user='root';\nUPDATE user SET plugin='mysql_native_password';\nFLUSH PRIVILEGES;" | mysql -u root
 script: 
-  - go test -coverprofile=coverage.txt -covermode=atomic ./...
+  - go test -p 1 -count 1 -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
   - bash <(curl -s https://codecov.io/bash)

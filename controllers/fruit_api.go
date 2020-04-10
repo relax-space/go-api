@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"go-api/models"
+	"fmt"
 	"net/http"
-	"nomni/utils/api"
 	"strconv"
 
+	"github.com/relax-space/go-api/models"
+	"github.com/hublabs/common/api"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/echoswagger"
 )
@@ -38,22 +39,16 @@ localhost:8080/fruits?skipCount=0&maxResultCount=2&sortby=store_code&order=desc
 func (FruitApiController) GetAll(c echo.Context) error {
 	var v SearchInput
 	if err := c.Bind(&v); err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.ParameterParsingError(err))
+		return renderFail(c, api.ErrorParameter.New(err))
 	}
 	if v.MaxResultCount == 0 {
 		v.MaxResultCount = DefaultMaxResultCount
 	}
-	totalCount, items, err := models.Fruit{}.GetAll(c.Request().Context(), v.Sortby, v.Order, v.SkipCount, v.MaxResultCount)
+	hasMore,totalCount, items, err := models.Fruit{}.GetAll(c.Request().Context(), v.Sortby, v.Order, v.SkipCount, v.MaxResultCount,v.WithHasMore)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c,api.ErrorDB.New(err))
 	}
-	if len(items) == 0 {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError())
-	}
-	return ReturnApiSucc(c, http.StatusOK, api.ArrayResult{
-		TotalCount: totalCount,
-		Items:      items,
-	})
+	return renderSuccArray(c, v.WithHasMore, hasMore, totalCount, items)
 }
 
 /*
@@ -64,35 +59,32 @@ func (d FruitApiController) GetOne(c echo.Context) error {
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.InvalidParamError("id", c.Param("id"), err))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
 	}
 
 	var withStore bool
 	if len(c.QueryParam("with_store")) != 0 {
 		withStore, err = strconv.ParseBool(c.QueryParam("with_store"))
 		if err != nil {
-			return ReturnApiFail(c, http.StatusBadRequest, api.InvalidParamError("with_store", c.Param("with_store"), err))
+			return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("with_store:%v",c.Param("with_store"))))
 		}
 	}
 	if withStore == true {
-		has, fruit, err := models.Fruit{}.GetWithStoreById(c.Request().Context(), id)
+		_, fruit, err := models.Fruit{}.GetWithStoreById(c.Request().Context(), id)
 		if err != nil {
-			return ReturnApiFail(c, http.StatusInternalServerError, err)
+			return renderFail(c, api.ErrorNotFound.New(err))
 		}
-		if has == false {
-			return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError())
-		}
-		return ReturnApiSucc(c, http.StatusOK, fruit)
+		return renderSucc(c, http.StatusOK, fruit)
 	}
 
-	has, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
+	_, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
-	if !has {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotFoundError())
+	if fruit.Id == 0 {
+		return renderFail(c, api.ErrorNotFound.New(nil))
 	}
-	return ReturnApiSucc(c, http.StatusOK, fruit)
+	return renderSucc(c, http.StatusOK, fruit)
 }
 
 /*
@@ -108,26 +100,23 @@ localhost:8080/fruits
 func (d FruitApiController) Create(c echo.Context) error {
 	var v models.Fruit
 	if err := c.Bind(&v); err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.ParameterParsingError(err))
-	}
-	if err := c.Validate(v); err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.ParameterParsingError(err))
+		return renderFail(c, api.ErrorParameter.New(err))
 	}
 	has, _, err := models.Fruit{}.GetByCode(c.Request().Context(), v.Code)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if has {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotCreatedError())
+		return renderFail(c, api.ErrorHasExisted.New(nil))
 	}
 	affectedRow, err := v.Create(c.Request().Context())
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotCreatedError())
+		return renderFail(c, api.ErrorNotCreated.New(nil))
 	}
-	return ReturnApiSucc(c, http.StatusCreated, v)
+	return renderSucc(c, http.StatusCreated, v)
 }
 
 /*
@@ -139,31 +128,28 @@ localhost:8080/fruits
 func (d FruitApiController) Update(c echo.Context) error {
 	var v models.Fruit
 	if err := c.Bind(&v); err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.ParameterParsingError(err))
-	}
-	if err := c.Validate(&v); err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.ParameterParsingError(err))
+		return renderFail(c, api.ErrorParameter.New(err))
 	}
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.InvalidParamError("id", c.Param("id"), err))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
 	}
 	has, _, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 
 	}
 	if has == false {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotUpdatedError())
+		return renderFail(c, api.ErrorNotFound.New(nil))
 	}
 	affectedRow, err := v.Update(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotUpdatedError())
+		return renderFail(c, api.ErrorNotUpdated.New(nil))
 	}
-	return ReturnApiSucc(c, http.StatusOK, v)
+	return renderSucc(c, http.StatusOK, v)
 }
 
 /*
@@ -173,21 +159,21 @@ func (d FruitApiController) Delete(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusBadRequest, api.InvalidParamError("id", c.Param("id"), err))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
 	}
 	has, v, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if has == false {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotDeletedError())
+		return renderFail(c, api.ErrorNotFound.New(nil))
 	}
 	affectedRow, err := models.Fruit{}.Delete(c.Request().Context(), id)
 	if err != nil {
-		return ReturnApiFail(c, http.StatusInternalServerError, err)
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if affectedRow == int64(0) {
-		return ReturnApiFail(c, http.StatusBadRequest, api.NotDeletedError())
+		return renderFail(c, api.ErrorNotDeleted.New(nil))
 	}
-	return ReturnApiSucc(c, http.StatusOK, v)
+	return renderSucc(c, http.StatusOK, v)
 }

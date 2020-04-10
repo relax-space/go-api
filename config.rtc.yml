@@ -1,6 +1,6 @@
 database:
   driver: mysql
-  connection: root:1234@tcp(rtc-mysql:3306)/fruit?charset=utf8&parseTime=True&loc=UTC
+  connection: root:1234@tcp(rtc-mysql:3306)/fruit?charset=utf8&parseTime=True&loc=UTC&multiStatements=true
   logger:
     kafka:
       brokers:
@@ -11,10 +11,5 @@ behaviorLog:
     brokers:
       - rtc-kafka:9092
     topic: behaviorlog
-eventBroker:
-  kafka:
-    brokers:
-      - rtc-kafka:9092
-    topic: fruit
 serviceName: go-api
 httpPort: 8080

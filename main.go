@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"go-api/config"
-	"go-api/controllers"
-	"go-api/models"
 	"log"
 	"net/http"
-	"nomni/utils/validator"
 	"os"
 	"strings"
 
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/controllers"
+	"github.com/relax-space/go-api/models"
+
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/pangpanglabs/echoswagger"
@@ -63,11 +64,18 @@ func main() {
 		behaviorlog.SetLogLevel(logrus.InfoLevel)
 	}
 
-	e.Validator = validator.New()
 
+	e.Validator = &Validator{}
 	e.Debug = c.Debug
 
 	if err := e.Start(":" + c.HttpPort); err != nil {
 		log.Println(err)
 	}
+}
+
+type Validator struct{}
+
+func (v *Validator) Validate(i interface{}) error {
+	_, err := govalidator.ValidateStruct(i)
+	return err
 }
