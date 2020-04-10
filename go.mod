@@ -3,6 +3,7 @@ module github.com/relax-space/go-api
 go 1.13
 
 require (
+	9fans.net/go v0.0.2 // indirect
 	github.com/Shopify/sarama v1.26.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/go-sql-driver/mysql v1.5.0
@@ -12,7 +13,10 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pangpanglabs/echoswagger v1.2.0
 	github.com/pangpanglabs/goutils v0.0.0-20200320140103-932a39405894
+	github.com/rogpeppe/godef v1.1.2 // indirect
 	github.com/sirupsen/logrus v1.5.0
+	github.com/sqs/goreturns v0.0.0-20181028201513-538ac6014518 // indirect
+	golang.org/x/tools v0.0.0-20200410132612-ae9902aceb98 // indirect
 )
 
 replace github.com/go-xorm/xorm => github.com/pangpanglabs/xorm v0.6.7-0.20191028024856-98149f1c9e95
