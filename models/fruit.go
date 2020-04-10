@@ -50,7 +50,7 @@ func (Fruit) GetByCode(ctx context.Context, code string) (bool, Fruit, error) {
 	return has, fruit, err
 }
 
-func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int) (int64, []Fruit, error) {
+func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int,withHasMore bool) (bool,int64, []Fruit, error) {
 	queryBuilder := func() xorm.Interface {
 		q := factory.DB(ctx)
 		if err := setSortOrder(q, sortby, order); err != nil {
@@ -58,12 +58,26 @@ func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit i
 		}
 		return q
 	}
-	var items []Fruit
-	totalCount, err := queryBuilder().Limit(limit, offset).FindAndCount(&items)
-	if err != nil {
-		return totalCount, items, err
+	var (
+		items   []Fruit
+		hasMore    bool
+		totalCount int64
+		err        error
+	)
+	if withHasMore {
+		err = queryBuilder().Limit(limit+1, offset).Find(&items)
+		if len(items) == limit+1 {
+			items = items[:limit]
+			hasMore = true
+		}
+	} else {
+		totalCount, err = queryBuilder().Limit(limit, offset).FindAndCount(&items)
 	}
-	return totalCount, items, nil
+	if err != nil {
+		return false, 0, nil, err
+	}
+
+	return hasMore,totalCount, items, nil
 }
 
 func (d *Fruit) Update(ctx context.Context, id int64) (int64, error) {

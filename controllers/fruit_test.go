@@ -66,6 +66,41 @@ func TestFruitCRUD(t *testing.T) {
 
 	})
 
+	t.Run("getAll_hasMore", func(t *testing.T) {
+		expFruits := []models.Fruit{
+			models.Fruit{
+				Id:        int64(1),
+				Code:      "apple",
+				Name:      "apple",
+				Color:     "red",
+				Price:     int64(11),
+				StoreCode: "10001",
+			},
+		}
+		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1&withHasMore=true", nil)
+		rec := httptest.NewRecorder()
+		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Equals(t, http.StatusOK, rec.Code)
+
+		var v struct {
+			Result struct {
+				HasMore  	bool          `json:"hasMore"`
+				Items      []models.Fruit `json:"items"`
+			} `json:"result"`
+			Success bool `json:"success"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, true, v.Success)
+		test.Equals(t, true, v.Result.HasMore)
+		test.Equals(t, expFruits[0].Id, v.Result.Items[0].Id)
+		test.Equals(t, expFruits[0].Code, v.Result.Items[0].Code)
+		test.Equals(t, expFruits[0].Name, v.Result.Items[0].Name)
+		test.Equals(t, expFruits[0].Color, v.Result.Items[0].Color)
+		test.Equals(t, expFruits[0].Price, v.Result.Items[0].Price)
+		test.Equals(t, expFruits[0].StoreCode, v.Result.Items[0].StoreCode)
+
+	})
+
 	t.Run("getOne", func(t *testing.T) {
 		expFruit := models.Fruit{
 			Id:        int64(1),
