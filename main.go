@@ -11,6 +11,8 @@ import (
 	"github.com/relax-space/go-api/controllers"
 	"github.com/relax-space/go-api/models"
 
+	"github.com/hublabs/common/api"
+	
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
@@ -50,7 +52,7 @@ func main() {
 	r.SetUI(echoswagger.UISetting{
 		HideTop: true,
 	})
-	controllers.FruitApiController{}.Init(r.Group("fruits", "v1/fruits"))
+	controllers.FruitAPIController{}.Init(r.Group("fruits", "v1/fruits"))
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
@@ -64,6 +66,7 @@ func main() {
 		behaviorlog.SetLogLevel(logrus.InfoLevel)
 	}
 
+	api.SetErrorMessagePrefix(c.ServiceName)
 
 	e.Validator = &Validator{}
 	e.Debug = c.Debug

@@ -3,32 +3,22 @@
 
 # go-api template
 
-Quickly create an echo-based api project, [more](#Extensions)
+Quickly create an echo-based api project
 
 ## Getting Started
 
-### Get source
-```
-$ git clone https://gitlab.p2shop.cn:8443/sample/go-api.git
-```
-Rename the outermost folder to your project name  
-Rename api-go to your project name
+### Create a new project
+>Rename go-api to your project name
 
 ### Run
 ```bash
-$ cd $GOPATH/src/go-api
+$ docker-compose -f .\example\docker-compose.yml up -d
 $ go run .
 ```
 
 Visit           http://127.0.0.1:8080/ping
 
 Visit swagger   http://127.0.0.1:8080/docs
-
-
-## References
-
-- echosample: [echosample](https://github.com/pangpanglabs/echosample)
-- vendor: `github.com/hublabs/common/api`, `github.com/hublabs/common/validator`
 
 ## Extensions
 
@@ -40,5 +30,10 @@ Visit swagger   http://127.0.0.1:8080/docs
 - twodb: [github](https://github.com/relax-space/go-api/go-api-twodb) | https://gitlab.p2shop.cn:8443/sample/go-api-twodb 
 - sqlserver: [github](https://github.com/relax-space/go-api/go-api-sqlserver) | https://gitlab.p2shop.cn:8443/sample/go-api-sqlserver 
 - postgres: [github](https://github.com/elandcloud/go-api-postgres) | https://gitlab.p2shop.cn:8443/sample/go-api-postgres
+
+
+## References
+
+- echosample: [echosample](https://github.com/pangpanglabs/echosample)
 
 

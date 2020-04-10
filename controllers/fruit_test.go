@@ -38,7 +38,7 @@ func TestFruitCRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=2", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -79,7 +79,7 @@ func TestFruitCRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1&withHasMore=true", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -115,7 +115,7 @@ func TestFruitCRUD(t *testing.T) {
 		c := echoApp.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("1")
-		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.GetOne, c))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetOne, c))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -148,7 +148,7 @@ func TestFruitCRUD(t *testing.T) {
 		t.Run(fmt.Sprint("Create#", i+1), func(t *testing.T) {
 			req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(pb))
 			rec := httptest.NewRecorder()
-			test.Ok(t, handleWithFilter(controllers.FruitApiController{}.Create, echoApp.NewContext(req, rec)))
+			test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echoApp.NewContext(req, rec)))
 			test.Equals(t, http.StatusCreated, rec.Code)
 
 			var v struct {
@@ -175,7 +175,7 @@ func TestFruitCRUD(t *testing.T) {
 		c := echoApp.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", expFruit.Id))
-		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.Update, c))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -207,7 +207,7 @@ func TestFruitCRUD(t *testing.T) {
 		c := echoApp.NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", 1))
-		test.Ok(t, handleWithFilter(controllers.FruitApiController{}.Delete, c))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Delete, c))
 		test.Equals(t, http.StatusOK, rec.Code)
 		var v struct {
 			Result  models.Fruit `json:"result"`
