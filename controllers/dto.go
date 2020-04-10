@@ -10,4 +10,5 @@ type SearchInput struct {
 	Order          []string `query:"order"`
 	SkipCount      int      `query:"skipCount"`
 	MaxResultCount int      `query:"maxResultCount"`
+	WithHasMore   bool   `query:"withHasMore"`
 }
