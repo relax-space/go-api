@@ -111,7 +111,9 @@ func writeUrl(url, fileName, jwtToken string) (err error) {
 		return
 	}
 	defer resp.Body.Close()
-
+	if resp.StatusCode != http.StatusOK{
+		return
+	}
 	out, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return
