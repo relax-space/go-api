@@ -25,4 +25,4 @@ before_script:
 script: 
   - go test -p 1 -count 1 -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - codecov
