@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"go-api/controllers"
-	"go-api/models"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/relax-space/go-api/controllers"
+	"github.com/relax-space/go-api/models"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/test"
 )

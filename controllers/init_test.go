@@ -11,11 +11,11 @@ import (
 	"log"
 	"net/http"
 
-	"go-api/config"
-	"go-api/models"
-	"nomni/utils/validator"
+	"github.com/relax-space/go-api/config"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/asaskevich/govalidator"
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/behaviorlog"
@@ -51,9 +51,9 @@ func enterTest() *xorm.Engine {
 		panic(err)
 	}
 
-
 	echoApp = echo.New()
-	echoApp.Validator = validator.New()
+	echoApp.Validator = &Validator{}
+
 	behaviorlog.SetLogLevel(logrus.InfoLevel)
 	behaviorlogger := echomiddleware.BehaviorLogger(c.ServiceName, c.BehaviorLog.Kafka)
 	db := ContextDB("test", xormEngine, echomiddleware.KafkaConfig{})
@@ -67,6 +67,7 @@ func enterTest() *xorm.Engine {
 		}
 	}
 
+
 	handleWithFilter = func(handlerFunc echo.HandlerFunc, c echo.Context) error {
 		return behaviorlogger(headerCtx(db(handlerFunc)))(c)
 	}
@@ -77,6 +78,13 @@ func exitTest(db *xorm.Engine) {
 	// if err := models.DropTables(db); err != nil {
 	// 	panic(err)
 	// }
+}
+
+type Validator struct{}
+
+func (v *Validator) Validate(i interface{}) error {
+	_, err := govalidator.ValidateStruct(i)
+	return err
 }
 
 func ContextDB(service string, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {

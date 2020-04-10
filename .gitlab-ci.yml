@@ -8,4 +8,4 @@ variables:
   SERVICE_NAME: go-api
 include: 
   - project: 'open/gitlab-ci'
-    file: '/templates/go.gitlab-ci.yml'
+    file: '/templates/go-mod.gitlab-ci.yml'
