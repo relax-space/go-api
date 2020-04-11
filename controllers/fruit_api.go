@@ -20,7 +20,7 @@ func (d FruitAPIController) Init(g echoswagger.ApiGroup) {
 	g.GET("", d.GetAll).
 		AddParamQueryNested(SearchInput{})
 	g.GET("/:id", d.GetOne).
-		AddParamPath("", "id", "id").AddParamQuery("", "with_store", "with_store", false)
+		AddParamPath("", "id", "id")
 	g.PUT("/:id", d.Update).
 		AddParamPath("", "id", "id").
 		AddParamBody(struct{
@@ -67,25 +67,9 @@ func (FruitAPIController) GetAll(c echo.Context) error {
 
 // GetOne query a fruit
 func (d FruitAPIController) GetOne(c echo.Context) error {
-
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
-	}
-
-	var withStore bool
-	if len(c.QueryParam("with_store")) != 0 {
-		withStore, err = strconv.ParseBool(c.QueryParam("with_store"))
-		if err != nil {
-			return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("with_store:%v",c.Param("with_store"))))
-		}
-	}
-	if withStore == true {
-		_, fruit, err := models.Fruit{}.GetWithStoreById(c.Request().Context(), id)
-		if err != nil {
-			return renderFail(c, api.ErrorNotFound.New(err))
-		}
-		return renderSucc(c, http.StatusOK, fruit)
 	}
 
 	_, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
@@ -109,7 +93,7 @@ func (d FruitAPIController) Create(c echo.Context) error {
 		return renderFail(c, api.ErrorDB.New(err))
 	}
 	if has {
-		return renderFail(c, nil)
+		return renderFail(c, api.ErrorHasExisted.New(nil))
 	}
 	affectedRow, err := v.Create(c.Request().Context())
 	if err != nil {
