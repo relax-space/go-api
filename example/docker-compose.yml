@@ -1,0 +1,47 @@
+services:
+  kafka-server:
+    container_name: rtc-kafka
+    environment:
+      JMX_PORT: 9097
+      KAFKA_ADVERTISED_HOST_NAME: rtc-kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_BROKER_ID: 1
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_HEAP_OPTS: -Xmx1G
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false  -Dcom.sun.management.jmxremote.ssl=false
+        -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.rmi.port=9097
+        -Djava.rmi.server.hostname=rtc-kafka
+      KAFKA_JVM_PERFORMANCE_OPTS: -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35
+        -XX:+DisableExplicitGC -Djava.awt.headless=true
+      KAFKA_LOG_CLEANER_ENABLE: "true"
+      KAFKA_LOG_CLEANUP_POLICY: delete
+      KAFKA_LOG_DIRS: /kafka/kafka-logs-24bf1bde016a
+      KAFKA_LOG_RETENTION_HOURS: 120
+      KAFKA_ZOOKEEPER_CONNECT: rtc-zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECTion_timeout_ms: 60000
+    extra_hosts:
+    - rtc-kafka:127.0.0.1
+    image: pangpanglabs/kafka
+    ports:
+    - 9092:9092
+    - 9097:9097
+  mysql-server:
+    container_name: rtc-mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=1234
+    image: mysql:5.7.22
+    ports:
+    - 3308:3306
+    volumes:
+    - .:/docker-entrypoint-initdb.d
+  zookeeper-server:
+    container_name: rtc-zookeeper
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=rtc-zookeeper:2888:3888
+    image: zookeeper:3.4.9
+    ports:
+    - "2181"
+    - 2888:2888
+    - 3888:3888
+version: "3"

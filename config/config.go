@@ -21,10 +21,6 @@ func Init(appEnv string, options ...func(*C)) C {
 	return config
 }
 
-func Config() C {
-	return config
-}
-
 type C struct {
 	Database struct {
 		Driver     string
@@ -50,6 +46,6 @@ type C struct {
 		Try, Confirm, Cancel string
 	}
 	Appenv, JwtSecret     string
-	ServiceName, HttpPort string
+	ServiceName, HTTPPort string
 	Debug                 bool
 }

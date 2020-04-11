@@ -10,33 +10,47 @@ import (
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/echoswagger"
 )
-
-type FruitApiController struct {
+// FruitAPIController define a struct
+type FruitAPIController struct {
 }
 
-// localhost:8080/docs
-func (d FruitApiController) Init(g echoswagger.ApiGroup) {
+// Init set router
+func (d FruitAPIController) Init(g echoswagger.ApiGroup) {
 	g.SetSecurity("Authorization")
 	g.GET("", d.GetAll).
 		AddParamQueryNested(SearchInput{})
 	g.GET("/:id", d.GetOne).
-		AddParamPath("", "id", "id").AddParamQuery("", "with_store", "with_store", false)
+		AddParamPath("", "id", "id")
 	g.PUT("/:id", d.Update).
 		AddParamPath("", "id", "id").
-		AddParamBody(models.Fruit{}, "fruit", "only can modify name,color,price", true)
+		AddParamBody(struct{
+			Code 	string 	`json:"code"`
+			Name 	string 	`json:"name"`
+			Color 	string 	`json:"color"`
+			Price 	int64 	`json:"price"`
+		}{
+			Code:"apple",
+			Name:"apple",
+			Color:"red",
+			Price:12,
+		}, "fruit", "only can modify name,color,price", true)
 	g.POST("", d.Create).
-		AddParamBody(models.Fruit{}, "fruit", "new fruit", true)
+		AddParamBody(struct{
+			Code 	string 	`json:"code"`
+			Name 	string 	`json:"name"`
+			Color 	string 	`json:"color"`
+			Price 	int64 	`json:"price"`
+		}{
+			Code:"banana",
+			Name:"banana",
+			Color:"yellow",
+			Price:16,
+		}, "fruit", "new fruit", true)
 	g.DELETE("/:id", d.Delete).
 		AddParamPath("", "id", "id")
 }
-
-/*
-localhost:8080/fruits
-localhost:8080/fruits?name=apple
-localhost:8080/fruits?skipCount=0&maxResultCount=2
-localhost:8080/fruits?skipCount=0&maxResultCount=2&sortby=store_code&order=desc
-*/
-func (FruitApiController) GetAll(c echo.Context) error {
+// GetAll search multi fruits
+func (FruitAPIController) GetAll(c echo.Context) error {
 	var v SearchInput
 	if err := c.Bind(&v); err != nil {
 		return renderFail(c, api.ErrorParameter.New(err))
@@ -51,30 +65,11 @@ func (FruitApiController) GetAll(c echo.Context) error {
 	return renderSuccArray(c, v.WithHasMore, hasMore, totalCount, items)
 }
 
-/*
-localhost:8080/fruits/1?with_store=true
-localhost:8080/fruits/1
-*/
-func (d FruitApiController) GetOne(c echo.Context) error {
-
+// GetOne query a fruit
+func (d FruitAPIController) GetOne(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
-	}
-
-	var withStore bool
-	if len(c.QueryParam("with_store")) != 0 {
-		withStore, err = strconv.ParseBool(c.QueryParam("with_store"))
-		if err != nil {
-			return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("with_store:%v",c.Param("with_store"))))
-		}
-	}
-	if withStore == true {
-		_, fruit, err := models.Fruit{}.GetWithStoreById(c.Request().Context(), id)
-		if err != nil {
-			return renderFail(c, api.ErrorNotFound.New(err))
-		}
-		return renderSucc(c, http.StatusOK, fruit)
 	}
 
 	_, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
@@ -87,17 +82,8 @@ func (d FruitApiController) GetOne(c echo.Context) error {
 	return renderSucc(c, http.StatusOK, fruit)
 }
 
-/*
-localhost:8080/fruits
- {
-        "code": "AA01",
-        "name": "Apple",
-        "color": "",
-        "price": 2,
-        "store_code": ""
-    }
-*/
-func (d FruitApiController) Create(c echo.Context) error {
+// Create a fruit
+func (d FruitAPIController) Create(c echo.Context) error {
 	var v models.Fruit
 	if err := c.Bind(&v); err != nil {
 		return renderFail(c, api.ErrorParameter.New(err))
@@ -119,13 +105,8 @@ func (d FruitApiController) Create(c echo.Context) error {
 	return renderSucc(c, http.StatusCreated, v)
 }
 
-/*
-localhost:8080/fruits
- {
-        "price": 21,
-    }
-*/
-func (d FruitApiController) Update(c echo.Context) error {
+// Update a fruit
+func (d FruitAPIController) Update(c echo.Context) error {
 	var v models.Fruit
 	if err := c.Bind(&v); err != nil {
 		return renderFail(c, api.ErrorParameter.New(err))
@@ -152,10 +133,8 @@ func (d FruitApiController) Update(c echo.Context) error {
 	return renderSucc(c, http.StatusOK, v)
 }
 
-/*
-localhost:8080/fruits/45
-*/
-func (d FruitApiController) Delete(c echo.Context) error {
+// Delete a fruit
+func (d FruitAPIController) Delete(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {

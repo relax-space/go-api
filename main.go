@@ -11,8 +11,9 @@ import (
 	"github.com/relax-space/go-api/controllers"
 	"github.com/relax-space/go-api/models"
 
+	"github.com/hublabs/common/api"
+	
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/pangpanglabs/echoswagger"
@@ -22,6 +23,16 @@ import (
 )
 
 func main() {
+	e,c:=initEcho()
+	if err := e.Start(":" + c.HTTPPort); err != nil {
+		log.Println(err)
+	}
+}
+
+func ping(c echo.Context) error{
+	return c.String(http.StatusOK, "pong")
+}
+func initEcho()(*echo.Echo,config.C){
 	c := config.Init(os.Getenv("APP_ENV"))
 
 	fmt.Println("Config===", c)
@@ -37,9 +48,7 @@ func main() {
 
 	e := echo.New()
 
-	e.GET("/ping", func(c echo.Context) error {
-		return c.String(http.StatusOK, "pong")
-	})
+	e.GET("/ping", ping)
 
 	r := echoswagger.New(e, "docs", &echoswagger.Info{
 		Title:       "Sample Fruit API",
@@ -50,7 +59,7 @@ func main() {
 	r.SetUI(echoswagger.UISetting{
 		HideTop: true,
 	})
-	controllers.FruitApiController{}.Init(r.Group("fruits", "v1/fruits"))
+	controllers.FruitAPIController{}.Init(r.Group("fruits", "v1/fruits"))
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
@@ -64,18 +73,9 @@ func main() {
 		behaviorlog.SetLogLevel(logrus.InfoLevel)
 	}
 
+	api.SetErrorMessagePrefix(c.ServiceName)
 
-	e.Validator = &Validator{}
 	e.Debug = c.Debug
-
-	if err := e.Start(":" + c.HttpPort); err != nil {
-		log.Println(err)
-	}
+	return e,c
 }
 
-type Validator struct{}
-
-func (v *Validator) Validate(i interface{}) error {
-	_, err := govalidator.ValidateStruct(i)
-	return err
-}

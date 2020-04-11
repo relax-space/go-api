@@ -1,28 +1,38 @@
-package models_test
+package tests_test
 
 import (
 	"context"
-	"io"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
+	"path/filepath"
+	"io/ioutil"
+	"io"
 	"time"
+	"log"
+	"net/http"
+	"net/http/httptest"
 
 	"github.com/relax-space/go-api/config"
-	"github.com/relax-space/go-api/factory"
 	"github.com/relax-space/go-api/models"
+	"github.com/relax-space/go-api/factory"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
-	configutil "github.com/pangpanglabs/goutils/config"
+	"github.com/labstack/echo"
+	"github.com/pangpanglabs/goutils/behaviorlog"
 	"github.com/pangpanglabs/goutils/echomiddleware"
+	"github.com/sirupsen/logrus"
+	"github.com/pangpanglabs/goutils/ctxdb"
+	"github.com/pangpanglabs/goutils/kafka"
 	"github.com/pangpanglabs/goutils/httpreq"
 	"github.com/pangpanglabs/goutils/jwtutil"
 )
 
-var ctx context.Context
+var (
+	echoApp          *echo.Echo
+	handleWithFilter func(handlerFunc echo.HandlerFunc, c echo.Context) error
+	ctx context.Context
+)
 
 func TestMain(m *testing.M) {
 	db := enterTest()
@@ -32,22 +42,42 @@ func TestMain(m *testing.M) {
 }
 
 func enterTest() *xorm.Engine {
-	configutil.SetConfigPath("../")
 	c := config.Init(os.Getenv("APP_ENV"))
 	xormEngine, err := xorm.NewEngine(c.Database.Driver, c.Database.Connection)
 	if err != nil {
 		panic(err)
 	}
-	// xormEngine.ShowSQL(true)
-	if err = initData(xormEngine, true); err != nil {
+	if err := initData(xormEngine, true); err != nil {
 		panic(err)
+	}
+
+	echoApp = echo.New()
+
+	behaviorlog.SetLogLevel(logrus.InfoLevel)
+	behaviorlogger := echomiddleware.BehaviorLogger(c.ServiceName, c.BehaviorLog.Kafka)
+	db := ContextDB("test", xormEngine, echomiddleware.KafkaConfig{})
+
+	headerCtx := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c.SetRequest(req)
+			return next(c)
+		}
+	}
+
+
+	handleWithFilter = func(handlerFunc echo.HandlerFunc, c echo.Context) error {
+		return behaviorlogger(headerCtx(db(handlerFunc)))(c)
 	}
 	ctx = context.WithValue(context.Background(), echomiddleware.ContextDBName, xormEngine)
 	return xormEngine
 }
 
 func exitTest(db *xorm.Engine) {
-	//db.Close()
+	// if err := models.DropTables(db); err != nil {
+	// 	panic(err)
+	// }
 }
 
 func rollback() {
@@ -56,6 +86,60 @@ func rollback() {
 		panic(err)
 	}
 }
+
+func SetContextWithoutEngine(req *http.Request) echo.Context {
+	rec := httptest.NewRecorder()
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	c := echoApp.NewContext(req, rec)
+	c.SetRequest(req.WithContext(context.WithValue(req.Context(), echomiddleware.ContextDBName, nil)))
+
+	return c
+}
+
+
+func ContextDB(service string, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
+	return ContextDBWithName(service, echomiddleware.ContextDBName, xormEngine, kafkaConfig)
+}
+func ContextDBWithName(service string, contexDBName echomiddleware.ContextDBType, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
+	db := ctxdb.New(xormEngine, service, kafkaConfig)
+
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			ctx := req.Context()
+
+			session := db.NewSession(ctx)
+			defer session.Close()
+
+			c.SetRequest(req.WithContext(context.WithValue(ctx, contexDBName, session)))
+
+			switch req.Method {
+			case "POST", "PUT", "DELETE", "PATCH":
+				if err := session.Begin(); err != nil {
+					log.Println(err)
+				}
+				if err := next(c); err != nil {
+					session.Rollback()
+					return err
+				}
+				if c.Response().Status >= 500 {
+					session.Rollback()
+					return nil
+				}
+				if err := session.Rollback(); err != nil { // rollback data
+					return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+				}
+			default:
+				return next(c)
+			}
+
+			return nil
+		}
+	}
+}
+
+
 
 func initData(xormEngine *xorm.Engine, isDownload bool) error {
 	if err := models.DropTables(xormEngine); err != nil {
@@ -134,3 +218,4 @@ func getToken() string {
 	}, jwtKey)
 	return token
 }
+
