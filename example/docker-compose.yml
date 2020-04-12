@@ -33,7 +33,7 @@ services:
     ports:
     - 3308:3306
     volumes:
-    - .:/docker-entrypoint-initdb.d
+    - ../tests/:/docker-entrypoint-initdb.d
   zookeeper-server:
     container_name: rtc-zookeeper
     environment:
