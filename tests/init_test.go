@@ -157,9 +157,9 @@ func initData(xormEngine *xorm.Engine, isDownload bool) error {
 func loadData(db *xorm.Engine, isDownload bool) (err error) {
 	if isDownload {
 		urlStr := "https://dmz-staging.p2shop.com.cn/rtc-dmz-api/v1/dbfiles?nsPrefix=pangpang&nsSuffix=&dbName=fruit"
-		writeUrl(urlStr, "test.sql", getToken())
+		writeUrl(urlStr, "tests/test.sql", getToken())
 	}
-	files, err := filepath.Glob("*.sql")
+	files, err := filepath.Glob("tests/*.sql")
 	if err != nil {
 		return
 	}
