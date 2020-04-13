@@ -3,11 +3,9 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	_ "github.com/relax-space/go-api/tests"
-	"github.com/relax-space/go-api/config"
 	"github.com/pangpanglabs/goutils/test"
 
 	"github.com/labstack/echo"
@@ -32,7 +30,7 @@ func TestInitEcho(t *testing.T) {
 			"go-api",
 			"8080",
 		}
-		_,c := initEcho()
+		_,c,_ := initEcho()
 		test.Equals(t,exp.Driver,c.Database.Driver)
 		test.Equals(t,exp.Conn,c.Database.Connection)
 		test.Equals(t,exp.LoggerKafkaBrokers,c.Database.Logger.Kafka.Brokers[0])
@@ -43,7 +41,7 @@ func TestInitEcho(t *testing.T) {
 	
 
 	t.Run("echo", func(t *testing.T) {
-		echoApp,_ := initEcho()
+		echoApp,_,_ := initEcho()
 		req := httptest.NewRequest(echo.GET, "/ping", nil)
 		rec := httptest.NewRecorder()
 		c := echoApp.NewContext(req, rec)
@@ -54,17 +52,3 @@ func TestInitEcho(t *testing.T) {
 	
 }
 
-func TestInitEchoPanic(t *testing.T) {
-	os.Setenv("APP_ENV","staging")
-	assertPanic(t,initEcho)
-}
-
-
-func assertPanic(t *testing.T, f func()(*echo.Echo,config.C)) {
-    defer func() {
-        if r := recover(); r == nil {
-            t.Errorf("The code did panic")
-        }
-    }()
-    f()
-}
