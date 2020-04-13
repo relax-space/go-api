@@ -8,7 +8,9 @@ Quickly create an echo-based api project
 ## Getting Started
 
 ### Create a new project
->Rename go-api to your project name
+> Rename github.com/relax-space/go-api to xxx/xxx/your-project-name
+> 
+> Rename go-api to your-project-name
 
 ### Run
 ```bash

@@ -11,6 +11,7 @@ var config C
 func Init(appEnv string, options ...func(*C)) C {
 	if err := configutil.Read(appEnv, &config); err != nil {
 		logrus.WithError(err).Warn("Fail to load config file")
+		return C{}
 	}
 	config.Appenv = appEnv
 

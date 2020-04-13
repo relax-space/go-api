@@ -15,6 +15,7 @@ import (
 	
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
+	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo/middleware"
 	"github.com/pangpanglabs/echoswagger"
 	"github.com/pangpanglabs/goutils/behaviorlog"
@@ -23,7 +24,8 @@ import (
 )
 
 func main() {
-	e,c:=initEcho()
+	e,c,db:=initEcho()
+	defer db.Close()
 	if err := e.Start(":" + c.HTTPPort); err != nil {
 		log.Println(err)
 	}
@@ -32,7 +34,7 @@ func main() {
 func ping(c echo.Context) error{
 	return c.String(http.StatusOK, "pong")
 }
-func initEcho()(*echo.Echo,config.C){
+func initEcho()(*echo.Echo,config.C,*xorm.Engine){
 	c := config.Init(os.Getenv("APP_ENV"))
 
 	fmt.Println("Config===", c)
@@ -40,7 +42,6 @@ func initEcho()(*echo.Echo,config.C){
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
 
 	if err := models.InitTable(db); err != nil {
 		panic(err)
@@ -76,6 +77,6 @@ func initEcho()(*echo.Echo,config.C){
 	api.SetErrorMessagePrefix(c.ServiceName)
 
 	e.Debug = c.Debug
-	return e,c
+	return e,c,db
 }
 
