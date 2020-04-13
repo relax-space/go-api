@@ -29,9 +29,9 @@ import (
 )
 
 var (
-	echoApp          *echo.Echo
 	handleWithFilter func(handlerFunc echo.HandlerFunc, c echo.Context) error
 	ctx context.Context
+	_xormEngine *xorm.Engine
 )
 
 func TestMain(m *testing.M) {
@@ -41,17 +41,13 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+
+
 func enterTest() *xorm.Engine {
-	c := config.Init(os.Getenv("APP_ENV"))
-	xormEngine, err := xorm.NewEngine(c.Database.Driver, c.Database.Connection)
-	if err != nil {
-		panic(err)
-	}
+	xormEngine,c:=initConfig()
 	if err := initData(xormEngine, true); err != nil {
 		panic(err)
 	}
-
-	echoApp = echo.New()
 
 	behaviorlog.SetLogLevel(logrus.InfoLevel)
 	behaviorlogger := echomiddleware.BehaviorLogger(c.ServiceName, c.BehaviorLog.Kafka)
@@ -87,15 +83,29 @@ func rollback() {
 	}
 }
 
-func SetContextWithoutEngine(req *http.Request) echo.Context {
+func initConfig() (*xorm.Engine,config.C){
+	c := config.Init(os.Getenv("APP_ENV"))
+	xormEngine, err := xorm.NewEngine(c.Database.Driver, c.Database.Connection)
+	if err != nil {
+		panic(err)
+	}
+	return xormEngine,c
+}
+
+func SetContextWithDBClose(req *http.Request) (echo.Context, *httptest.ResponseRecorder) {
+	if _xormEngine == nil{
+		_xormEngine,_ = initConfig()
+	}
 	rec := httptest.NewRecorder()
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	c := echoApp.NewContext(req, rec)
-	c.SetRequest(req.WithContext(context.WithValue(req.Context(), echomiddleware.ContextDBName, nil)))
+	c := echo.New().NewContext(req, rec)
+	_xormEngine.Close()
+	c.SetRequest(req.WithContext(context.WithValue(req.Context(), echomiddleware.ContextDBName, _xormEngine)))
 
-	return c
+	return c,rec
 }
+
 
 
 func ContextDB(service string, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
@@ -157,9 +167,9 @@ func initData(xormEngine *xorm.Engine, isDownload bool) error {
 func loadData(db *xorm.Engine, isDownload bool) (err error) {
 	if isDownload {
 		urlStr := "https://dmz-staging.p2shop.com.cn/rtc-dmz-api/v1/dbfiles?nsPrefix=pangpang&nsSuffix=&dbName=fruit"
-		writeUrl(urlStr, "test.sql", getToken())
+		writeUrl(urlStr, "tests/test.sql", getToken())
 	}
-	files, err := filepath.Glob("*.sql")
+	files, err := filepath.Glob("tests/*.sql")
 	if err != nil {
 		return
 	}

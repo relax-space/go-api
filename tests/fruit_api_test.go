@@ -41,7 +41,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=2", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -72,7 +72,7 @@ func TestFruitAPICRUD(t *testing.T) {
 	t.Run("GetAll_Default", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -103,7 +103,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1&withHasMore=true", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusOK, rec.Code)
 
 		var v struct {
@@ -136,7 +136,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("1")
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetOne, c))
@@ -172,7 +172,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		t.Run(fmt.Sprint("Create#", i+1), func(t *testing.T) {
 			req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(pb))
 			rec := httptest.NewRecorder()
-			test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echoApp.NewContext(req, rec)))
+			test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echo.New().NewContext(req, rec)))
 			test.Equals(t, http.StatusCreated, rec.Code)
 
 			var v struct {
@@ -196,7 +196,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		pb, _ := json.Marshal(expFruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", expFruit.Id))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
@@ -228,7 +228,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		}
 		req := httptest.NewRequest(echo.DELETE, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", 1))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Delete, c))
@@ -255,7 +255,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	t.Run("GetAll_bind", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=A", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusBadRequest, rec.Code)
 
 		var v struct {
@@ -274,7 +274,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	t.Run("GetAll_DB", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1&sortby=id1", nil)
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetAll, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
@@ -293,7 +293,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	t.Run("GetOne_id", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("A")
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetOne, c))
@@ -313,7 +313,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("1010")
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.GetOne, c))
@@ -334,7 +334,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		b :=[]byte("lalala")
 		req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(b))
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusBadRequest, rec.Code)
 
 		var v struct {
@@ -355,7 +355,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusBadRequest, rec.Code)
 
 		var v struct {
@@ -376,7 +376,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echoApp.NewContext(req, rec)))
+		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echo.New().NewContext(req, rec)))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
@@ -394,7 +394,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		b :=[]byte("lalala")
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(b))
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("A")
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
@@ -417,7 +417,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues("A")
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
@@ -442,7 +442,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", fruit.Id))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
@@ -466,7 +466,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", fruit.Id))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Update, c))
@@ -485,7 +485,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	t.Run("Delete_Bind", func(t *testing.T) {
 		req := httptest.NewRequest(echo.DELETE, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", "A"))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Delete, c))
@@ -503,7 +503,7 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	t.Run("Delete_notFount", func(t *testing.T) {
 		req := httptest.NewRequest(echo.DELETE, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
-		c := echoApp.NewContext(req, rec)
+		c := echo.New().NewContext(req, rec)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", 1010))
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Delete, c))
@@ -520,4 +520,106 @@ func TestFruitAPICRUDFail(t *testing.T) {
 	})
 
 }
+
+
+func TestFruitAPICRUDFailDB(t *testing.T) {
+
+	t.Run("GetAll", func(t *testing.T) {
+
+		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1", nil)
+		c,rec := SetContextWithDBClose(req)
+		test.Ok(t,controllers.FruitAPIController{}.GetAll(c))
+		test.Equals(t, http.StatusInternalServerError, rec.Code)
+
+		var v struct {
+			Success bool         `json:"success"`
+			Error 	api.Error 	`json:"error"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		
+	})
+
+	t.Run("GetOne", func(t *testing.T) {
+
+		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
+		c,rec := SetContextWithDBClose(req)
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+		test.Ok(t,controllers.FruitAPIController{}.GetOne(c))
+		test.Equals(t, http.StatusInternalServerError, rec.Code)
+
+		var v struct {
+			Success bool         `json:"success"`
+			Error 	api.Error 	`json:"error"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		
+	})
+
+	t.Run("Create", func(t *testing.T) {
+		fruit := models.Fruit{
+			Code:  "apple123",
+			Color: "red",
+		}
+		pb, _ := json.Marshal(fruit)
+		req := httptest.NewRequest(echo.GET, "/v1/fruits", bytes.NewReader(pb))
+		c,rec := SetContextWithDBClose(req)
+		test.Ok(t,controllers.FruitAPIController{}.Create(c))
+		test.Equals(t, http.StatusInternalServerError, rec.Code)
+
+		var v struct {
+			Success bool         `json:"success"`
+			Error 	api.Error 	`json:"error"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+	})
+
+	t.Run("Update", func(t *testing.T) {
+		fruit := models.Fruit{
+			Id:        int64(1),
+			Code:      "apple234",
+		}
+		pb, _ := json.Marshal(fruit)
+		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id",  bytes.NewReader(pb))
+		c,rec := SetContextWithDBClose(req)
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprintf("%v", fruit.Id))
+		test.Ok(t,controllers.FruitAPIController{}.Update(c))
+		test.Equals(t, http.StatusInternalServerError, rec.Code)
+
+		var v struct {
+			Success bool         `json:"success"`
+			Error 	api.Error 	`json:"error"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+	})
+
+	t.Run("Delete", func(t *testing.T) {
+		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
+		c,rec := SetContextWithDBClose(req)
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+		test.Ok(t,controllers.FruitAPIController{}.Delete(c))
+		test.Equals(t, http.StatusInternalServerError, rec.Code)
+
+		var v struct {
+			Success bool         `json:"success"`
+			Error 	api.Error 	`json:"error"`
+		}
+		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+	})
+
+
+}
+
 
