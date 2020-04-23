@@ -7,6 +7,9 @@ Quickly create an echo-based api project
 
 ## Getting Started
 
+### set env
+GOPROXY  https://goproxy.cn
+
 ### Create a new project
 > Rename github.com/relax-space/go-api to xxx/xxx/your-project-name
 > 
