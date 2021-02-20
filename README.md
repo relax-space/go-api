@@ -3,7 +3,7 @@
 
 # go-api template
 
-Quickly create an echo-based api project
+Quickly create an echo-based  api project
 
 ## Getting Started
 
