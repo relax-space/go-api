@@ -18,6 +18,7 @@ GOPROXY  https://goproxy.cn
 ### Run
 ```bash
 $ docker-compose -f .\example\docker-compose.yml up -d
+$ go mod tidy
 $ go run .
 ```
 
