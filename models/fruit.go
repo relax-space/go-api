@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/relax-space/go-api/factory"
+	"go-api/factory"
 )
 
 type Fruit struct {

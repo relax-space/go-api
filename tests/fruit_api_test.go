@@ -8,9 +8,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-api/controllers"
+	"go-api/models"
+
 	"github.com/hublabs/common/api"
-	"github.com/relax-space/go-api/controllers"
-	"github.com/relax-space/go-api/models"
 
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/test"

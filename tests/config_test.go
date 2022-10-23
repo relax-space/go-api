@@ -3,8 +3,9 @@ package tests_test
 import (
 	"testing"
 
+	"go-api/config"
+
 	"github.com/pangpanglabs/goutils/test"
-	"github.com/relax-space/go-api/config"
 )
 
 func TestConfig(t *testing.T) {

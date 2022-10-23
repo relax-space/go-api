@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/relax-space/go-api/config"
-	"github.com/relax-space/go-api/controllers"
-	"github.com/relax-space/go-api/models"
+	"go-api/config"
+	"go-api/controllers"
+	"go-api/models"
 
 	"github.com/hublabs/common/api"
 

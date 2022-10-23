@@ -3,8 +3,9 @@ package tests_test
 import (
 	"testing"
 
+	"go-api/models"
+
 	"github.com/pangpanglabs/goutils/test"
-	"github.com/relax-space/go-api/models"
 )
 
 func TestFruitCRUD(t *testing.T) {

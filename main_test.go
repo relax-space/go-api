@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	_ "go-api/tests"
+
 	"github.com/pangpanglabs/goutils/test"
-	_ "github.com/relax-space/go-api/tests"
 
 	"github.com/labstack/echo"
 )

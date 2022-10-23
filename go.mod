@@ -1,4 +1,4 @@
-module github.com/relax-space/go-api
+module go-api
 
 go 1.13
 

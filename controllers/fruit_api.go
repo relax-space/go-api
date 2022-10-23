@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"go-api/models"
+
 	"github.com/hublabs/common/api"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/echoswagger"
-	"github.com/relax-space/go-api/models"
 )
 
 // FruitAPIController define a struct

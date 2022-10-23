@@ -5,10 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go-api/controllers"
+
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/echomiddleware"
 	"github.com/pangpanglabs/goutils/test"
-	"github.com/relax-space/go-api/controllers"
 )
 
 func TestFactory(t *testing.T) {
