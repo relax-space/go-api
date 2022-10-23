@@ -31,7 +31,7 @@ func renderSuccArray(c echo.Context, withHasMore, hasMore bool, totalCount int64
 			HasMore: hasMore,
 			Items:   result,
 		})
-	} 
+	}
 	return renderSucc(c, http.StatusOK, api.ArrayResult{
 		TotalCount: totalCount,
 		Items:      result,

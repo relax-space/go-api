@@ -34,14 +34,14 @@ func (Fruit) GetByCode(ctx context.Context, code string) (bool, Fruit, error) {
 	return has, fruit, err
 }
 
-func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int,withHasMore bool) (bool,int64, []Fruit, error) {
+func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit int, withHasMore bool) (bool, int64, []Fruit, error) {
 	query := factory.DB(ctx)
 	if err := setSortOrder(query, sortby, order); err != nil {
 		return false, 0, nil, err
 	}
 
 	var (
-		items   []Fruit
+		items      []Fruit
 		hasMore    bool
 		totalCount int64
 		err        error
@@ -55,7 +55,7 @@ func (Fruit) GetAll(ctx context.Context, sortby, order []string, offset, limit i
 	} else {
 		totalCount, err = query.Limit(limit, offset).FindAndCount(&items)
 	}
-	return hasMore,totalCount, items, err
+	return hasMore, totalCount, items, err
 }
 
 func (d *Fruit) Update(ctx context.Context, id int64) (int64, error) {
@@ -66,4 +66,3 @@ func (d *Fruit) Update(ctx context.Context, id int64) (int64, error) {
 func (Fruit) Delete(ctx context.Context, id int64) (int64, error) {
 	return factory.DB(ctx).Where("id=?", id).Delete(&Fruit{})
 }
-

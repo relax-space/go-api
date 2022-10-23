@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/relax-space/go-api/models"
 	"github.com/hublabs/common/api"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/echoswagger"
+	"github.com/relax-space/go-api/models"
 )
+
 // FruitAPIController define a struct
 type FruitAPIController struct {
 }
@@ -23,32 +24,33 @@ func (d FruitAPIController) Init(g echoswagger.ApiGroup) {
 		AddParamPath("", "id", "id")
 	g.PUT("/:id", d.Update).
 		AddParamPath("", "id", "id").
-		AddParamBody(struct{
-			Code 	string 	`json:"code"`
-			Name 	string 	`json:"name"`
-			Color 	string 	`json:"color"`
-			Price 	int64 	`json:"price"`
+		AddParamBody(struct {
+			Code  string `json:"code"`
+			Name  string `json:"name"`
+			Color string `json:"color"`
+			Price int64  `json:"price"`
 		}{
-			Code:"apple",
-			Name:"apple",
-			Color:"red",
-			Price:12,
+			Code:  "apple",
+			Name:  "apple",
+			Color: "red",
+			Price: 12,
 		}, "fruit", "only can modify name,color,price", true)
 	g.POST("", d.Create).
-		AddParamBody(struct{
-			Code 	string 	`json:"code"`
-			Name 	string 	`json:"name"`
-			Color 	string 	`json:"color"`
-			Price 	int64 	`json:"price"`
+		AddParamBody(struct {
+			Code  string `json:"code"`
+			Name  string `json:"name"`
+			Color string `json:"color"`
+			Price int64  `json:"price"`
 		}{
-			Code:"banana",
-			Name:"banana",
-			Color:"yellow",
-			Price:16,
+			Code:  "banana",
+			Name:  "banana",
+			Color: "yellow",
+			Price: 16,
 		}, "fruit", "new fruit", true)
 	g.DELETE("/:id", d.Delete).
 		AddParamPath("", "id", "id")
 }
+
 // GetAll search multi fruits
 func (FruitAPIController) GetAll(c echo.Context) error {
 	var v SearchInput
@@ -58,9 +60,9 @@ func (FruitAPIController) GetAll(c echo.Context) error {
 	if v.MaxResultCount == 0 {
 		v.MaxResultCount = DefaultMaxResultCount
 	}
-	hasMore,totalCount, items, err := models.Fruit{}.GetAll(c.Request().Context(), v.Sortby, v.Order, v.SkipCount, v.MaxResultCount,v.WithHasMore)
+	hasMore, totalCount, items, err := models.Fruit{}.GetAll(c.Request().Context(), v.Sortby, v.Order, v.SkipCount, v.MaxResultCount, v.WithHasMore)
 	if err != nil {
-		return renderFail(c,api.ErrorDB.New(err))
+		return renderFail(c, api.ErrorDB.New(err))
 	}
 	return renderSuccArray(c, v.WithHasMore, hasMore, totalCount, items)
 }
@@ -69,7 +71,7 @@ func (FruitAPIController) GetAll(c echo.Context) error {
 func (d FruitAPIController) GetOne(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err, fmt.Sprintf("id:%v", c.Param("id"))))
 	}
 
 	_, fruit, err := models.Fruit{}.GetById(c.Request().Context(), id)
@@ -113,7 +115,7 @@ func (d FruitAPIController) Update(c echo.Context) error {
 	}
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err, fmt.Sprintf("id:%v", c.Param("id"))))
 	}
 	has, _, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {
@@ -138,7 +140,7 @@ func (d FruitAPIController) Delete(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return renderFail(c, api.ErrorParameterParsingFailed.New(err,fmt.Sprintf("id:%v",c.Param("id"))))
+		return renderFail(c, api.ErrorParameterParsingFailed.New(err, fmt.Sprintf("id:%v", c.Param("id"))))
 	}
 	has, v, err := models.Fruit{}.GetById(c.Request().Context(), id)
 	if err != nil {

@@ -20,4 +20,3 @@ func DB(ctx context.Context) xorm.Interface {
 	}
 	panic("DB is not exist in xorm.Engine")
 }
-

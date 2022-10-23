@@ -8,14 +8,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/hublabs/common/api"
 	"github.com/relax-space/go-api/controllers"
 	"github.com/relax-space/go-api/models"
-	"github.com/hublabs/common/api"
 
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/test"
 )
-
 
 func TestFruitAPICRUD(t *testing.T) {
 
@@ -52,7 +51,7 @@ func TestFruitAPICRUD(t *testing.T) {
 			Success bool `json:"success"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
-		test.Assert(t,v.Result.TotalCount>=2,"result must be greater than 2")
+		test.Assert(t, v.Result.TotalCount >= 2, "result must be greater than 2")
 		test.Equals(t, expFruits[0].Id, v.Result.Items[0].Id)
 		test.Equals(t, expFruits[0].Code, v.Result.Items[0].Code)
 		test.Equals(t, expFruits[0].Name, v.Result.Items[0].Name)
@@ -78,7 +77,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		var v struct {
 			Result struct {
 				TotalCount int            `json:"totalCount"`
-				HasMore  	bool          `json:"hasMore"`
+				HasMore    bool           `json:"hasMore"`
 				Items      []models.Fruit `json:"items"`
 			} `json:"result"`
 			Success bool `json:"success"`
@@ -86,7 +85,7 @@ func TestFruitAPICRUD(t *testing.T) {
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, true, v.Success)
 		test.Equals(t, false, v.Result.HasMore)
-		test.Assert(t,v.Result.TotalCount>=2,"result must be greater than 2")
+		test.Assert(t, v.Result.TotalCount >= 2, "result must be greater than 2")
 
 	})
 
@@ -108,8 +107,8 @@ func TestFruitAPICRUD(t *testing.T) {
 
 		var v struct {
 			Result struct {
-				HasMore  	bool          `json:"hasMore"`
-				Items      []models.Fruit `json:"items"`
+				HasMore bool           `json:"hasMore"`
+				Items   []models.Fruit `json:"items"`
 			} `json:"result"`
 			Success bool `json:"success"`
 		}
@@ -249,7 +248,6 @@ func TestFruitAPICRUD(t *testing.T) {
 	})
 }
 
-
 func TestFruitAPICRUDFail(t *testing.T) {
 
 	t.Run("GetAll_bind", func(t *testing.T) {
@@ -263,12 +261,12 @@ func TestFruitAPICRUDFail(t *testing.T) {
 				TotalCount int            `json:"totalCount"`
 				Items      []models.Fruit `json:"items"`
 			} `json:"result"`
-			Success bool `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
-		test.Equals(t,false,v.Success)
-		test.Equals(t, api.ErrorParameter.Code,v.Error.Code)
+		test.Equals(t, false, v.Success)
+		test.Equals(t, api.ErrorParameter.Code, v.Error.Code)
 	})
 
 	t.Run("GetAll_DB", func(t *testing.T) {
@@ -279,15 +277,15 @@ func TestFruitAPICRUDFail(t *testing.T) {
 
 		var v struct {
 			Result struct {
-				HasMore  	bool          `json:"hasMore"`
-				Items      []models.Fruit `json:"items"`
+				HasMore bool           `json:"hasMore"`
+				Items   []models.Fruit `json:"items"`
 			} `json:"result"`
-			Success bool `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
 	t.Run("GetOne_id", func(t *testing.T) {
@@ -302,15 +300,15 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorParameterParsingFailed.Code,v.Error.Code)
+		test.Equals(t, api.ErrorParameterParsingFailed.Code, v.Error.Code)
 	})
 
 	t.Run("GetOne_NotFound", func(t *testing.T) {
-		
+
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
@@ -322,16 +320,16 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorNotFound.Code,v.Error.Code)
+		test.Equals(t, api.ErrorNotFound.Code, v.Error.Code)
 	})
 
 	t.Run("Create_bind", func(t *testing.T) {
-		
-		b :=[]byte("lalala")
+
+		b := []byte("lalala")
 		req := httptest.NewRequest(echo.POST, "/v1/fruits", bytes.NewReader(b))
 		rec := httptest.NewRecorder()
 		test.Ok(t, handleWithFilter(controllers.FruitAPIController{}.Create, echo.New().NewContext(req, rec)))
@@ -340,11 +338,11 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Equals(t, false, v.Success)
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
-		test.Equals(t, api.ErrorParameter.Code,v.Error.Code)
+		test.Equals(t, api.ErrorParameter.Code, v.Error.Code)
 	})
 
 	t.Run("Create_exist", func(t *testing.T) {
@@ -361,11 +359,11 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Equals(t, false, v.Success)
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
-		test.Equals(t, api.ErrorHasExisted.Code,v.Error.Code)
+		test.Equals(t, api.ErrorHasExisted.Code, v.Error.Code)
 	})
 
 	t.Run("Create_Long_string", func(t *testing.T) {
@@ -382,16 +380,16 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
 	t.Run("Update_bind", func(t *testing.T) {
-		
-		b :=[]byte("lalala")
+
+		b := []byte("lalala")
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(b))
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
@@ -403,16 +401,16 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorParameter.Code,v.Error.Code)
+		test.Equals(t, api.ErrorParameter.Code, v.Error.Code)
 	})
 
 	t.Run("Update_Id", func(t *testing.T) {
 		fruit := models.Fruit{
-			Code:      "apple2",
+			Code: "apple2",
 		}
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
@@ -426,18 +424,17 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorParameterParsingFailed.Code,v.Error.Code)
+		test.Equals(t, api.ErrorParameterParsingFailed.Code, v.Error.Code)
 	})
-
 
 	t.Run("Update_notFound", func(t *testing.T) {
 		fruit := models.Fruit{
-			Id:        int64(1010),
-			Code:      "apple2",
+			Id:   int64(1010),
+			Code: "apple2",
 		}
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.PUT, "/v1/fruits/:id", bytes.NewReader(pb))
@@ -451,16 +448,16 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorNotFound.Code,v.Error.Code)
+		test.Equals(t, api.ErrorNotFound.Code, v.Error.Code)
 	})
 
 	t.Run("Update_long_string", func(t *testing.T) {
 		fruit := models.Fruit{
-			Id:        int64(1),
+			Id:    int64(1),
 			Color: "redredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredredred",
 		}
 		pb, _ := json.Marshal(fruit)
@@ -475,11 +472,11 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
 	t.Run("Delete_Bind", func(t *testing.T) {
@@ -493,11 +490,11 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorParameterParsingFailed.Code,v.Error.Code)
+		test.Equals(t, api.ErrorParameterParsingFailed.Code, v.Error.Code)
 	})
 
 	t.Run("Delete_notFount", func(t *testing.T) {
@@ -511,53 +508,52 @@ func TestFruitAPICRUDFail(t *testing.T) {
 		var v struct {
 			Result  models.Fruit `json:"result"`
 			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Error   api.Error    `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorNotFound.Code,v.Error.Code)
+		test.Equals(t, api.ErrorNotFound.Code, v.Error.Code)
 
 	})
 
 }
-
 
 func TestFruitAPICRUDFailDB(t *testing.T) {
 
 	t.Run("GetAll", func(t *testing.T) {
 
 		req := httptest.NewRequest(echo.GET, "/v1/fruits?maxResultCount=1", nil)
-		c,rec := SetContextWithDBClose(req)
-		test.Ok(t,controllers.FruitAPIController{}.GetAll(c))
+		c, rec := SetContextWithDBClose(req)
+		test.Ok(t, controllers.FruitAPIController{}.GetAll(c))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
-			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
-		
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
+
 	})
 
 	t.Run("GetOne", func(t *testing.T) {
 
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
-		c,rec := SetContextWithDBClose(req)
+		c, rec := SetContextWithDBClose(req)
 		c.SetParamNames("id")
 		c.SetParamValues("1")
-		test.Ok(t,controllers.FruitAPIController{}.GetOne(c))
+		test.Ok(t, controllers.FruitAPIController{}.GetOne(c))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
-			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
-		
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
+
 	})
 
 	t.Run("Create", func(t *testing.T) {
@@ -567,59 +563,56 @@ func TestFruitAPICRUDFailDB(t *testing.T) {
 		}
 		pb, _ := json.Marshal(fruit)
 		req := httptest.NewRequest(echo.GET, "/v1/fruits", bytes.NewReader(pb))
-		c,rec := SetContextWithDBClose(req)
-		test.Ok(t,controllers.FruitAPIController{}.Create(c))
+		c, rec := SetContextWithDBClose(req)
+		test.Ok(t, controllers.FruitAPIController{}.Create(c))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
-			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
 	t.Run("Update", func(t *testing.T) {
 		fruit := models.Fruit{
-			Id:        int64(1),
-			Code:      "apple234",
+			Id:   int64(1),
+			Code: "apple234",
 		}
 		pb, _ := json.Marshal(fruit)
-		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id",  bytes.NewReader(pb))
-		c,rec := SetContextWithDBClose(req)
+		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", bytes.NewReader(pb))
+		c, rec := SetContextWithDBClose(req)
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprintf("%v", fruit.Id))
-		test.Ok(t,controllers.FruitAPIController{}.Update(c))
+		test.Ok(t, controllers.FruitAPIController{}.Update(c))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
-			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
 	t.Run("Delete", func(t *testing.T) {
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
-		c,rec := SetContextWithDBClose(req)
+		c, rec := SetContextWithDBClose(req)
 		c.SetParamNames("id")
 		c.SetParamValues("1")
-		test.Ok(t,controllers.FruitAPIController{}.Delete(c))
+		test.Ok(t, controllers.FruitAPIController{}.Delete(c))
 		test.Equals(t, http.StatusInternalServerError, rec.Code)
 
 		var v struct {
-			Success bool         `json:"success"`
-			Error 	api.Error 	`json:"error"`
+			Success bool      `json:"success"`
+			Error   api.Error `json:"error"`
 		}
 		test.Ok(t, json.Unmarshal(rec.Body.Bytes(), &v))
 		test.Equals(t, false, v.Success)
-		test.Equals(t, api.ErrorDB.Code,v.Error.Code)
+		test.Equals(t, api.ErrorDB.Code, v.Error.Code)
 	})
 
-
 }
-
-

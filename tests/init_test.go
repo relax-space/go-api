@@ -2,36 +2,36 @@ package tests_test
 
 import (
 	"context"
-	"os"
-	"testing"
-	"path/filepath"
-	"io/ioutil"
 	"io"
-	"time"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
 
 	"github.com/relax-space/go-api/config"
-	"github.com/relax-space/go-api/models"
 	"github.com/relax-space/go-api/factory"
+	"github.com/relax-space/go-api/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/behaviorlog"
-	"github.com/pangpanglabs/goutils/echomiddleware"
-	"github.com/sirupsen/logrus"
 	"github.com/pangpanglabs/goutils/ctxdb"
-	"github.com/pangpanglabs/goutils/kafka"
+	"github.com/pangpanglabs/goutils/echomiddleware"
 	"github.com/pangpanglabs/goutils/httpreq"
 	"github.com/pangpanglabs/goutils/jwtutil"
+	"github.com/pangpanglabs/goutils/kafka"
+	"github.com/sirupsen/logrus"
 )
 
 var (
 	handleWithFilter func(handlerFunc echo.HandlerFunc, c echo.Context) error
-	ctx context.Context
-	_xormEngine *xorm.Engine
+	ctx              context.Context
+	_xormEngine      *xorm.Engine
 )
 
 func TestMain(m *testing.M) {
@@ -41,10 +41,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-
-
 func enterTest() *xorm.Engine {
-	xormEngine,c:=initConfig()
+	xormEngine, c := initConfig()
 	if err := initData(xormEngine, true); err != nil {
 		panic(err)
 	}
@@ -61,7 +59,6 @@ func enterTest() *xorm.Engine {
 			return next(c)
 		}
 	}
-
 
 	handleWithFilter = func(handlerFunc echo.HandlerFunc, c echo.Context) error {
 		return behaviorlogger(headerCtx(db(handlerFunc)))(c)
@@ -83,18 +80,18 @@ func rollback() {
 	}
 }
 
-func initConfig() (*xorm.Engine,config.C){
+func initConfig() (*xorm.Engine, config.C) {
 	c := config.Init(os.Getenv("APP_ENV"))
 	xormEngine, err := xorm.NewEngine(c.Database.Driver, c.Database.Connection)
 	if err != nil {
 		panic(err)
 	}
-	return xormEngine,c
+	return xormEngine, c
 }
 
 func SetContextWithDBClose(req *http.Request) (echo.Context, *httptest.ResponseRecorder) {
-	if _xormEngine == nil{
-		_xormEngine,_ = initConfig()
+	if _xormEngine == nil {
+		_xormEngine, _ = initConfig()
 	}
 	rec := httptest.NewRecorder()
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -103,10 +100,8 @@ func SetContextWithDBClose(req *http.Request) (echo.Context, *httptest.ResponseR
 	_xormEngine.Close()
 	c.SetRequest(req.WithContext(context.WithValue(req.Context(), echomiddleware.ContextDBName, _xormEngine)))
 
-	return c,rec
+	return c, rec
 }
-
-
 
 func ContextDB(service string, xormEngine *xorm.Engine, kafkaConfig kafka.Config) echo.MiddlewareFunc {
 	return ContextDBWithName(service, echomiddleware.ContextDBName, xormEngine, kafkaConfig)
@@ -148,8 +143,6 @@ func ContextDBWithName(service string, contexDBName echomiddleware.ContextDBType
 		}
 	}
 }
-
-
 
 func initData(xormEngine *xorm.Engine, isDownload bool) error {
 	if err := models.DropTables(xormEngine); err != nil {
@@ -193,7 +186,7 @@ func importFile(db *xorm.Engine, fileName string) error {
 	return nil
 }
 func writeUrl(url, fileName, jwtToken string) (err error) {
-	if len(jwtToken) ==0{// don't download
+	if len(jwtToken) == 0 { // don't download
 		return
 	}
 	req := httpreq.New(http.MethodGet, url, nil, func(httpReq *httpreq.HttpReq) error {
@@ -205,7 +198,7 @@ func writeUrl(url, fileName, jwtToken string) (err error) {
 		return
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK{
+	if resp.StatusCode != http.StatusOK {
 		return
 	}
 	out, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
@@ -218,8 +211,8 @@ func writeUrl(url, fileName, jwtToken string) (err error) {
 }
 
 func getToken() string {
-	jwtKey :=os.Getenv("JWT_SECRET")
-	if len(jwtKey) ==0{
+	jwtKey := os.Getenv("JWT_SECRET")
+	if len(jwtKey) == 0 {
 		return ""
 	}
 	token, _ := jwtutil.NewTokenWithSecret(map[string]interface{}{
@@ -228,4 +221,3 @@ func getToken() string {
 	}, jwtKey)
 	return token
 }
-

@@ -4,20 +4,18 @@ import (
 	"context"
 	"net/http/httptest"
 	"testing"
-	
-	"github.com/relax-space/go-api/controllers"
+
+	"github.com/labstack/echo"
 	"github.com/pangpanglabs/goutils/echomiddleware"
 	"github.com/pangpanglabs/goutils/test"
-	"github.com/labstack/echo"
+	"github.com/relax-space/go-api/controllers"
 )
-
-
 
 func TestFactory(t *testing.T) {
 	t.Run("DB_panic_ctx", func(t *testing.T) {
 		defer func() {
 			r := recover()
-			test.Equals(t,"DB is not exist in ctx",r)
+			test.Equals(t, "DB is not exist in ctx", r)
 		}()
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
@@ -30,7 +28,7 @@ func TestFactory(t *testing.T) {
 	t.Run("DB_panic_engine", func(t *testing.T) {
 		defer func() {
 			r := recover()
-			test.Equals(t,"DB is not exist in xorm.Engine",r)
+			test.Equals(t, "DB is not exist in xorm.Engine", r)
 		}()
 		req := httptest.NewRequest(echo.GET, "/v1/fruits/:id", nil)
 		rec := httptest.NewRecorder()
